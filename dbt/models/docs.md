@@ -43,3 +43,12 @@ A visit milestone: the customer's nth visit, for each n in the `milestones` dbt 
 5, 10). A customer reaches milestone n on the date of their nth visit. Changing the variable changes no
 schema.
 {% enddocs %}
+
+{% docs signup %}
+A sign-up: a customer's account creation, counted once per customer in the quarter of its UTC signup date
+(`dim_customers.signup_date`). A sign-up on 31 March is in the first quarter; one on 1 April, the second.
+{% enddocs %}
+
+{% docs ad_spend %}
+Simulated marketing spend in dollars, by channel and day, summed over campaigns.
+{% enddocs %}

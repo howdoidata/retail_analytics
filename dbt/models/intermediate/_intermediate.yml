@@ -78,3 +78,29 @@ models:
           {{ doc("milestone") }} A map from each configured milestone to the date the customer reached it,
           null when not reached; every milestone is a key. `milestone_dates[3]` is the third-visit date.
           Dates never decrease as the milestone rises.
+
+  - name: int_channel_spend_daily
+    description: >
+      One row per channel and day that has rows in `stg_ad_spend`. {{ doc("ad_spend") }} Built by summing
+      the day's campaigns; a channel and day with no `stg_ad_spend` rows has no row.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: ['channel', 'spend_date']
+    columns:
+      - name: channel
+        description: '{{ doc("channel") }} The channel the spend paid for.'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: spend_date
+        description: Day of the spend.
+        data_tests:
+          - not_null
+      - name: ad_spend
+        description: Spend in dollars for the channel and day, summed over campaigns; simulated.
+        data_tests:
+          - not_null
