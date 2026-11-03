@@ -127,7 +127,8 @@ progress is visible.
 
 ## Story index
 
-One record per story in [`stories/`](stories), written in the story's own pull request.
+One record per story in [`stories/`](stories), written in the pull request that carries the story (its own
+or a [batch PR](convention.md#batch-pull-requests)).
 
 | Story | Title | Record | Status |
 |---|---|---|---|

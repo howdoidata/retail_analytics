@@ -5,15 +5,27 @@ records is [README.md](README.md).
 
 ## When
 
-- The record is written **in the story's own pull request**, on the story's branch, as
+- The record is written **in the pull request that carries the story**, as
   `docs/build-record/stories/<story-id>.md` (for example `stories/C-4.md`), copied from
-  [`stories/_template.md`](stories/_template.md).
+  [`stories/_template.md`](stories/_template.md). That is either the story's own PR or a batch PR (below).
 - The same PR adds one row to the [story index](README.md#story-index) in the walkthrough, and updates a
   stage's status line if the story completes or advances that stage.
 - Facts that only exist after the PR is opened (the PR link, the CI run, the review outcome) are added in a
   follow-up commit on the same branch before merge. After merge, a record changes only to correct a fact or
   to move its status on (for example In progress to Done, in both the record and its index row). That later
   PR says so. A record is never back-dated.
+
+### Batch pull requests
+
+Several stories may share one batch PR. Each story is still its own commit (or commits) on the batch
+branch, and every commit message names its story id.
+
+- Each story keeps its own record and index row. Until the batch PR exists, the record's `## Change` and
+  `## CI run` sections say "pending batch PR".
+- Once the batch PR is open, one follow-up commit fills in every record in the batch: the batch PR link
+  and the CI run for the PR's last commit that changed more than the records. Each record still names its
+  own story's commits.
+- The review outcome is per story: findings are recorded in the record of the story they concern.
 
 ## Required sections
 
@@ -44,7 +56,7 @@ recorded only as "public-safety edit" with no detail.
 ## CI link
 
 Copy the run URL from the PR's checks (`gh pr checks <pr>`) or the Actions tab. Use the run for the PR's
-last commit that changed more than the record; the follow-up commit that only fills in the record is checked
+last commit that changed more than the record (for a batch PR, more than the records); the follow-up commit that only fills in the record is checked
 by its own run on the PR. The run on the PR's final head commit must be green before merge. Only a green run counts as verification; a red run is recorded with what fixed it.
 
 ## Public-safety check before commit
