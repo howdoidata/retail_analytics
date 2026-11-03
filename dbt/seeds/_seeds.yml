@@ -1,0 +1,38 @@
+version: 2
+
+seeds:
+  - name: channels
+    description: '{{ doc("channel") }} One row per canonical channel.'
+    config:
+      column_types:
+        channel: varchar
+    columns:
+      - name: channel
+        description: Canonical channel name.
+        data_tests:
+          - unique
+          - not_null
+
+  - name: channel_labels
+    description: >
+      Maps every channel label and UTM source label in the source data, trimmed and lowercased, to its
+      canonical channel (M1). One row per label; staging looks labels up by `lower(trim(label))`, so a
+      label missing here leaves the channel null and fails the staging not_null tests.
+    config:
+      column_types:
+        label: varchar
+        channel: varchar
+    columns:
+      - name: label
+        description: A channel or UTM source label as written in the sources, trimmed and lowercased.
+        data_tests:
+          - unique
+          - not_null
+      - name: channel
+        description: The canonical channel the label maps to.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel

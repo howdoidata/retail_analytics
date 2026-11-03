@@ -1,0 +1,110 @@
+version: 2
+
+sources:
+  - name: raw
+    description: >
+      The six synthetic source CSVs written by the generator (`uv run generate`) to the folder in the
+      `raw_data_dir` variable (default `data/raw`). Every column is read as text, so the deliberate mess
+      M1-M6 reaches staging as written; formats are described in `data/raw/README.md`.
+    meta:
+      external_location: >-
+        read_csv('{{ var("raw_data_dir") }}/{name}.csv', header = true, all_varchar = true)
+    tables:
+      - name: customers
+        description: One row per store account, including duplicate accounts (M2) and test accounts (M6).
+        columns:
+          - name: id
+            description: Account id; positive integer, rising with signup time.
+          - name: created_at
+            description: When the account was created, in one of four timestamp forms (M3).
+          - name: email
+            description: Account email; duplicates differ by case or surrounding whitespace (M2).
+          - name: first_name
+            description: First name; test accounts may use `test` (M6).
+          - name: last_name
+            description: Last name; test accounts may use `test` (M6).
+          - name: state
+            description: Two-letter US state code.
+          - name: signup_location
+            description: Where the account was created, `online` or `store`.
+          - name: accepts_marketing
+            description: Marketing consent, `true` or `false`.
+      - name: orders
+        description: >
+          One row per order, including refunds (M5), zero-total and test-account orders (M6), and orders
+          whose customer_id matches no customer (M4).
+        columns:
+          - name: id
+            description: Order id; positive integer, rising with order time.
+          - name: customer_id
+            description: Id of the ordering customer; some match no customer (M4).
+          - name: created_at
+            description: When the order was placed, in one of four timestamp forms (M3).
+          - name: sales_channel
+            description: Where the order was placed, `online` or `store`.
+          - name: status
+            description: Order status, spelled inconsistently, with refunds mixed in (M5).
+          - name: subtotal
+            description: Sum of the order's line quantity times unit price, in dollars.
+          - name: discount
+            description: Discount in dollars.
+          - name: total
+            description: Subtotal minus discount, in dollars; `0.00` on junk orders (M6).
+          - name: currency
+            description: Currency code, always `USD`.
+      - name: order_lines
+        description: One row per order line, for every order in `orders`.
+        columns:
+          - name: id
+            description: Order line id.
+          - name: order_id
+            description: Id of the order the line belongs to.
+          - name: product_id
+            description: Id of the product sold.
+          - name: quantity
+            description: Units sold.
+          - name: unit_price
+            description: Price per unit in dollars.
+      - name: products
+        description: One row per product in the outdoor gear catalog.
+        columns:
+          - name: id
+            description: Product id.
+          - name: title
+            description: Product name.
+          - name: category
+            description: Product category (camping, climbing, footwear, apparel, packs).
+          - name: list_price
+            description: List price in dollars.
+      - name: marketing_touches
+        description: >
+          One row per marketing touch, including touches whose email matches no customer (M4); channel and
+          utm_source labels are spelled many ways (M1).
+        columns:
+          - name: id
+            description: Touch id.
+          - name: customer_email
+            description: Email of the person touched.
+          - name: touched_at
+            description: When the touch happened, in one of four timestamp forms (M3).
+          - name: channel
+            description: Channel label, spelled many ways (M1).
+          - name: campaign
+            description: Campaign name; empty for touches with no campaign.
+          - name: utm_source
+            description: UTM source label, spelled many ways (M1).
+          - name: utm_medium
+            description: UTM medium; one value per canonical channel.
+          - name: utm_campaign
+            description: Campaign lowercased with spaces as `_`; empty when campaign is.
+      - name: ad_spend
+        description: One row per channel label, campaign, and day of simulated ad spend.
+        columns:
+          - name: date
+            description: Day of the spend, `YYYY-MM-DD` or `MM/DD/YYYY` (M3).
+          - name: channel
+            description: Channel label, spelled many ways (M1).
+          - name: campaign
+            description: Campaign name.
+          - name: spend
+            description: Simulated spend in dollars.

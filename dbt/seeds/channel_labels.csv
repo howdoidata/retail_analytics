@@ -1,0 +1,42 @@
+label,channel
+bing,Paid Search
+cpc,Paid Search
+google,Paid Search
+google ads,Paid Search
+google_ads,Paid Search
+paid search,Paid Search
+sem,Paid Search
+facebook,Paid Social
+facebook ads,Paid Social
+fb,Paid Social
+ig,Paid Social
+instagram,Paid Social
+instagram ads,Paid Social
+paid social,Paid Social
+paid_social,Paid Social
+bing_organic,Organic Search
+duckduckgo,Organic Search
+google_organic,Organic Search
+organic,Organic Search
+organic search,Organic Search
+seo,Organic Search
+e-mail,Email
+email,Email
+mailer,Email
+newsletter,Email
+gear_forum,Referral
+partner blog,Referral
+partner_blog,Referral
+ref,Referral
+referral,Referral
+referral partner,Referral
+in store,In-store
+in-store,In-store
+in_store,In-store
+pos,In-store
+store,In-store
+(direct),Direct/Unknown
+(none),Direct/Unknown
+direct,Direct/Unknown
+direct/unknown,Direct/Unknown
+unknown,Direct/Unknown
