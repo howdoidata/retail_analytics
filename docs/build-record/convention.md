@@ -24,7 +24,7 @@ Each record has these headings, in this order (checked by `tests/test_build_reco
 3. `## Review outcome`: the human decision (who, approved or changes requested, at which review point) and
    the AI review findings, each accepted or rejected with a one-line reason. If nothing was recorded, say
    "None recorded." Never leave the section empty.
-4. `## CI run`: the link to the CI run on the PR's final head commit and its result. If the change made no
+4. `## CI run`: the link to the PR's CI run (see below) and its result. If the change made no
    commit to this repo, say so.
 5. `## Status`: `Done`, `In review`, or `In progress`, plus what remains. State status as it is; never claim
    an approval that has not been given.
@@ -43,7 +43,8 @@ recorded only as "public-safety edit" with no detail.
 ## CI link
 
 Copy the run URL from the PR's checks (`gh pr checks <pr>`) or the Actions tab. Use the run for the PR's
-final head commit. Only a green run counts as verification; a red run is recorded with what fixed it.
+last commit that changed more than the record; the follow-up commit that only fills in the record is checked
+by its own run on the PR. Only a green run counts as verification; a red run is recorded with what fixed it.
 
 ## Public-safety check before commit
 
