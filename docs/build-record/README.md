@@ -12,8 +12,8 @@ How each story leaves its record: [convention.md](convention.md).
 
 ## The three AI controls
 
-- **Data limits:** AI only ever sees synthetic demo data and repo content. Nothing real goes in, so
-  nothing real can come out.
+- **Data limits:** AI is given only synthetic demo data and repo content (an assumption stated in the
+  [spec](definition/spec.md)).
 - **Human review:** named review points where Antonio approves before work proceeds: the spec and each
   story's result, and every pull request before it merges to `main`.
 - **Record:** what AI did is written down and committed: the idea, the spec, and one record per story
@@ -104,6 +104,8 @@ accepted or rejected and why. Recorded in each story's "Review outcome" section.
 ## Verification
 
 **What is shown:** Python tests, dbt tests, and CI on every change. Each story's record links its CI run.
+C-1 (spec only) and C-3 (no commit yet) made no commit to this repo, so they have no CI run, and C-2 came
+before the PR flow (no PR); the details are in their records.
 
 - CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`)
 - Python tests: [`tests/`](../../tests)

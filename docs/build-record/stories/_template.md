@@ -16,7 +16,11 @@
 ## Review outcome
 
 - **Human decision:** <who, approved / changes requested, at which review point>
-- **AI review findings:** <table per the convention, or "None recorded.">
+- **AI review findings:** see the table below, or "None recorded."
+
+| Source | Finding | Decision | Reason |
+|---|---|---|---|
+| <AI review / human> | <finding> | <Accepted / Rejected> | <reason> |
 
 ## CI run
 

@@ -42,6 +42,7 @@ A vision to realize: howdoidata.com presents Antonio Galvan's analytics practice
 - **CAP-7** About the Builder page
   - **intent:** A recruiter arriving from the resume or LinkedIn reads who Antonio is.
   - **success:** The page carries the About text verbatim from `canonical-copy.md` and is linked from the resume and LinkedIn.
+- CAP-8 (Contact page) was retired; the Contact page is left as-is.
 - **CAP-9** AI-readable identity
   - **intent:** AI engines find one consistent story about Antonio and How Do I Data.
   - **success:** llms.txt is live; Person JSON-LD validates; the canonical story string is identical in JSON-LD, llms.txt, About, LinkedIn, and GitHub.

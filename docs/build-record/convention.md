@@ -11,8 +11,9 @@ records is [README.md](README.md).
 - The same PR adds one row to the [story index](README.md#story-index) in the walkthrough, and updates a
   stage's status line if the story completes or advances that stage.
 - Facts that only exist after the PR is opened (the PR link, the CI run, the review outcome) are added in a
-  follow-up commit on the same branch before merge. A record is never back-dated or edited after merge
-  except to correct a fact; corrections say so.
+  follow-up commit on the same branch before merge. After merge, a record changes only to correct a fact or
+  to move its status on (for example In progress to Done, in both the record and its index row). That later
+  PR says so. A record is never back-dated.
 
 ## Required sections
 
@@ -44,13 +45,14 @@ recorded only as "public-safety edit" with no detail.
 
 Copy the run URL from the PR's checks (`gh pr checks <pr>`) or the Actions tab. Use the run for the PR's
 last commit that changed more than the record; the follow-up commit that only fills in the record is checked
-by its own run on the PR. Only a green run counts as verification; a red run is recorded with what fixed it.
+by its own run on the PR. The run on the PR's final head commit must be green before merge. Only a green run counts as verification; a red run is recorded with what fixed it.
 
 ## Public-safety check before commit
 
 Everything in this folder is public. Before each commit, read the diff and check that it contains:
 
-- no secrets, tokens, keys, or email addresses;
+- no secrets, tokens, keys, or email addresses (clearly fictional sample values on example domains,
+  such as `x.com`, are allowed);
 - no local file paths and no names of private repositories or internal working files;
 - no names of employers or clients, and nothing about where an analysis shape came from;
 - no internal scoring or evidence identifiers from the site's planning;

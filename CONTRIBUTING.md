@@ -24,9 +24,9 @@ CI (`.github/workflows/ci.yml`) runs the same lint, tests, and `dbt parse` on ev
 - **Human review before merge.** Every PR is reviewed and approved by a human before it lands
   on `main`, including AI-assisted changes. Review outcomes are recorded on the PR.
 - **Every story leaves a build record.** In the same PR, add
-  `docs/build-record/stories/<story-id>.md` with the story spec, the change, the review outcome
-  (human decision and AI findings accepted or rejected), and the CI run, following
-  [`docs/build-record/convention.md`](docs/build-record/convention.md), and run its public-safety check.
+  `docs/build-record/stories/<story-id>.md` per
+  [`docs/build-record/convention.md`](docs/build-record/convention.md). Before committing, do the
+  public-safety review in the convention.
 - **Contracts first.** Shapes in [`docs/data-contracts.md`](docs/data-contracts.md) are the
   contract. Changing a source file, model grain, or mart column is a spec change, made in the
   spec first and copied here, not edited in code alone.
