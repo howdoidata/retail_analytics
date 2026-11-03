@@ -127,7 +127,8 @@ progress is visible.
 
 ## Story index
 
-One record per story in [`stories/`](stories), written in the story's own pull request.
+One record per story in [`stories/`](stories), written in the pull request that carries the story (its own
+or a [batch PR](convention.md#batch-pull-requests)).
 
 | Story | Title | Record | Status |
 |---|---|---|---|
@@ -135,5 +136,6 @@ One record per story in [`stories/`](stories), written in the story's own pull r
 | C-2 | Create and scaffold the flagship repo with minimal CI | [C-2](stories/C-2.md) | Done |
 | C-3 | Author the Tableau dashboard on sample extracts | [C-3](stories/C-3.md) | In progress |
 | D-1 | Set up the build-record trail and walkthrough skeleton | [D-1](stories/D-1.md) | Done |
-| C-4 | Build the source CSV generator (Ch1) | [C-4](stories/C-4.md) | In review |
-| C-5 | Build the dbt staging models that fix the mess (Ch2) | [C-5](stories/C-5.md) | In review |
+| C-4 | Build the source CSV generator (Ch1) | [C-4](stories/C-4.md) | Done |
+| C-5 | Build the dbt staging models that fix the mess (Ch2) | [C-5](stories/C-5.md) | Done |
+| C-6 | Build the core customer layers | [C-6](stories/C-6.md) | In review |
