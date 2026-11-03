@@ -1,0 +1,106 @@
+{
+  "metadata": {
+    "dbt_version": "1.11.0",
+    "generated_at": "2026-01-01T00:00:00Z",
+    "invocation_id": "00000000-0000-0000-0000-000000000000",
+    "project_name": "retail_analytics"
+  },
+  "docs": {
+    "doc.dbt.__overview__": {
+      "name": "__overview__", "package_name": "dbt",
+      "block_contents": "### Welcome to dbt docs"
+    },
+    "doc.retail_analytics.visit": {
+      "name": "visit", "package_name": "retail_analytics",
+      "block_contents": "\nOne purchase visit.\n"
+    },
+    "doc.retail_analytics.channel": {
+      "name": "channel", "package_name": "retail_analytics",
+      "block_contents": "A canonical channel: Paid Search,\nEmail, or In-store.\n"
+    },
+    "doc.retail_analytics.paid_channel": {
+      "name": "paid_channel", "package_name": "retail_analytics",
+      "block_contents": "A canonical channel: Paid Search,\nEmail, or In-store. Only channels with spend."
+    }
+  },
+  "sources": {
+    "source.retail_analytics.raw.orders": {
+      "unique_id": "source.retail_analytics.raw.orders", "resource_type": "source",
+      "package_name": "retail_analytics", "source_name": "raw", "name": "orders",
+      "fqn": ["retail_analytics", "staging", "raw", "orders"],
+      "source_description": "Source CSVs from the generator.\n",
+      "description": "One row per order.",
+      "columns": {
+        "id": {"name": "id", "description": "Order id."},
+        "status": {"name": "status", "description": "Status: paid | refunded."}
+      }
+    },
+    "source.retail_analytics.raw.customers": {
+      "unique_id": "source.retail_analytics.raw.customers", "resource_type": "source",
+      "package_name": "retail_analytics", "source_name": "raw", "name": "customers",
+      "fqn": ["retail_analytics", "staging", "raw", "customers"],
+      "source_description": "Source CSVs from the generator.\n",
+      "description": "One row per account.",
+      "columns": {
+        "id": {"name": "id", "description": "Account id."}
+      }
+    }
+  },
+  "nodes": {
+    "model.retail_analytics.fct_signups": {
+      "unique_id": "model.retail_analytics.fct_signups", "resource_type": "model",
+      "package_name": "retail_analytics", "name": "fct_signups",
+      "fqn": ["retail_analytics", "marts", "fct_signups"],
+      "description": "Sign-ups by channel.",
+      "columns": {
+        "signups": {"name": "signups", "description": "New customers."},
+        "channel": {"name": "channel", "description": "A canonical channel: Paid Search,\nEmail, or In-store. Acquisition channel."}
+      }
+    },
+    "model.retail_analytics.stg_orders": {
+      "unique_id": "model.retail_analytics.stg_orders", "resource_type": "model",
+      "package_name": "retail_analytics", "name": "stg_orders",
+      "fqn": ["retail_analytics", "staging", "stg_orders"],
+      "description": "One row per visit. One purchase visit.",
+      "columns": {
+        "id": {"name": "id", "description": "Order id."},
+        "status": {"name": "status", "description": "Either paid | complete,\nlowercased."}
+      }
+    },
+    "model.retail_analytics.stg_customers": {
+      "unique_id": "model.retail_analytics.stg_customers", "resource_type": "model",
+      "package_name": "retail_analytics", "name": "stg_customers",
+      "fqn": ["retail_analytics", "staging", "stg_customers"],
+      "description": "One row per customer.",
+      "columns": {
+        "id": {"name": "id", "description": "Customer id."}
+      }
+    },
+    "model.retail_analytics.int_spend": {
+      "unique_id": "model.retail_analytics.int_spend", "resource_type": "model",
+      "package_name": "retail_analytics", "name": "int_spend",
+      "fqn": ["retail_analytics", "intermediate", "int_spend"],
+      "description": "Spend by channel and day.",
+      "columns": {
+        "channel": {"name": "channel", "description": "A canonical channel: Paid Search,\nEmail, or In-store. Only channels with spend."},
+        "spend": {"name": "spend", "description": "Spend in dollars."}
+      }
+    },
+    "seed.retail_analytics.channels": {
+      "unique_id": "seed.retail_analytics.channels", "resource_type": "seed",
+      "package_name": "retail_analytics", "name": "channels",
+      "fqn": ["retail_analytics", "channels"],
+      "description": "A canonical channel: Paid Search,\nEmail, or In-store. One row per channel.",
+      "columns": {
+        "channel": {"name": "channel", "description": "Canonical channel name."}
+      }
+    },
+    "test.retail_analytics.not_null_stg_orders_id": {
+      "unique_id": "test.retail_analytics.not_null_stg_orders_id", "resource_type": "test",
+      "package_name": "retail_analytics", "name": "not_null_stg_orders_id",
+      "fqn": ["retail_analytics", "staging", "not_null_stg_orders_id"],
+      "description": "",
+      "columns": {}
+    }
+  }
+}
