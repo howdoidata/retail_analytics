@@ -13,6 +13,7 @@ dependencies = [
 
 [project.scripts]
 build = "retail_analytics.cli:build"
+generate = "retail_analytics.generator.cli:main"
 
 [dependency-groups]
 dev = [

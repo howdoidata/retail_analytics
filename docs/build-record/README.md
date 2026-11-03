@@ -135,3 +135,4 @@ One record per story in [`stories/`](stories), written in the story's own pull r
 | C-2 | Create and scaffold the flagship repo with minimal CI | [C-2](stories/C-2.md) | Done |
 | C-3 | Author the Tableau dashboard on sample extracts | [C-3](stories/C-3.md) | In progress |
 | D-1 | Set up the build-record trail and walkthrough skeleton | [D-1](stories/D-1.md) | Done |
+| C-4 | Build the source CSV generator (Ch1) | [C-4](stories/C-4.md) | In review |
