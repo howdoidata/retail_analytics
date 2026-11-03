@@ -15,5 +15,6 @@ uv run dbt parse --project-dir dbt --profiles-dir dbt
 `uv run build` runs `dbt build` with the repo-local profile into `data/retail_analytics.duckdb`.
 
 Shapes are fixed by `docs/data-contracts.md` (a copy of the spec; change the spec, not this file).
+Every story leaves its build record per `docs/build-record/convention.md`.
 Standards and review rules: `CONTRIBUTING.md`. Everything committed is public: synthetic data only,
 no secrets, no internal or client names.

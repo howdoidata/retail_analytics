@@ -33,8 +33,16 @@ Answered by three views, one mart each (shapes in [`docs/data-contracts.md`](doc
 
 ## Build record
 
-TODO: stages from idea to production (idea, definition, planning, build, review, verification, production),
-with links to the committed artifacts.
+How this demo is built, from idea to production, with where AI worked and where a human reviewed it:
+the [build record walkthrough](docs/build-record/README.md). Stages:
+
+1. [Idea](docs/build-record/README.md#idea)
+2. [Definition](docs/build-record/README.md#definition)
+3. [Planning](docs/build-record/README.md#planning)
+4. [Build](docs/build-record/README.md#build)
+5. [Review](docs/build-record/README.md#review)
+6. [Verification](docs/build-record/README.md#verification)
+7. [Production](docs/build-record/README.md#production)
 
 ## Repo layout
 
@@ -44,7 +52,7 @@ with links to the committed artifacts.
 | `dbt/` | dbt-duckdb project: `models/staging`, `models/intermediate`, `models/marts`, `seeds`, `macros` |
 | `scripts/` | Helper scripts |
 | `tests/` | Python tests |
-| `docs/` | [Data contracts](docs/data-contracts.md) |
+| `docs/` | [Data contracts](docs/data-contracts.md), [build record](docs/build-record/README.md) |
 | `data/raw/`, `data/export/` | Generated CSVs (not committed) |
 
 ## Quick start
