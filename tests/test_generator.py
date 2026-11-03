@@ -60,6 +60,7 @@ FORBIDDEN = re.compile(
 
 FIRST_QUARTER = (2024, 1)
 LAST_DAY = datetime(2025, 12, 31, 23, 59)
+FIRST_TOUCH = datetime(2023, 12, 2)  # touches start at most 30 days before 2024-01-01
 
 
 def parse_ts(value: str) -> datetime:
@@ -151,6 +152,16 @@ def test_headers_match_contract(out: Path) -> None:
         assert (out / name).read_text(encoding="utf-8").split("\n", 1)[0] == header, name
 
 
+def test_whitespace_values_are_quoted(out: Path) -> None:
+    orders = (out / "orders.csv").read_bytes()
+    assert b',"Paid ",' in orders and b",Paid ," not in orders
+    raw = (out / "customers.csv").read_text(encoding="utf-8")
+    padded = [c["email"] for c in read(out, "customers.csv") if c["email"] != c["email"].strip()]
+    assert padded, "expected whitespace-padded M2 emails"
+    for email in padded:
+        assert f',"{email}",' in raw and f",{email}," not in raw, email
+
+
 def test_files_are_utf8_with_newline_endings(out: Path) -> None:
     for name in CONTRACT_HEADERS:
         raw = (out / name).read_bytes()
@@ -170,7 +181,7 @@ def test_volume_and_quarters(clean: dict, data: dict) -> None:
     for o in data["orders"]:
         assert datetime(2024, 1, 1) <= parse_ts(o["created_at"]) <= LAST_DAY
     for t in data["marketing_touches"]:
-        assert parse_ts(t["touched_at"]) <= LAST_DAY
+        assert FIRST_TOUCH <= parse_ts(t["touched_at"]) <= LAST_DAY
     for s in data["ad_spend"]:
         assert datetime(2024, 1, 1) <= parse_date(s["date"]) <= LAST_DAY
 
@@ -233,12 +244,6 @@ def test_unique_ids(data: dict) -> None:
 
 
 def test_m1_channel_labels(data: dict) -> None:
-    lowered = Counter(
-        norm(lbl)
-        for labels in (CHANNEL_LABELS, UTM_SOURCE_LABELS)
-        for ls in labels.values()
-        for lbl in set(ls)
-    )
     for lbl in LABEL_TO_CHANNEL:
         owners = {
             ch
@@ -247,7 +252,6 @@ def test_m1_channel_labels(data: dict) -> None:
             if lbl in map(norm, ls)
         }
         assert len(owners) == 1, f"label {lbl!r} maps to {owners}"
-    assert lowered
     for field in ("channel", "utm_source"):
         seen = defaultdict(set)
         for t in data["marketing_touches"]:
@@ -270,6 +274,10 @@ def test_m2_duplicate_customers(data: dict, clean: dict, report: dict) -> None:
     ordering = {o["customer_id"] for o in data["orders"]}
     dup_ids = set(c["id"] for c in data["customers"]) - set(clean["customers"]) - clean["test_ids"]
     assert len(dup_ids) == duplicates and not dup_ids & ordering
+    kept = {norm(c["email"]): parse_ts(c["created_at"]) for c in clean["customers"].values()}
+    for c in data["customers"]:
+        if c["id"] in dup_ids:
+            assert parse_ts(c["created_at"]) > kept[norm(c["email"])], c["id"]
 
 
 def test_m3_timestamp_forms(data: dict) -> None:
@@ -370,6 +378,14 @@ def test_cli_writes_to_raw_dir(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) 
     monkeypatch.setattr(config, "RAW_DATA_DIR", target)
     cli.main(["--seed", "3"])
     assert sorted(p.name for p in target.glob("*.csv")) == sorted(CONTRACT_HEADERS)
+
+
+def test_cli_defaults_to_seed_42(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, out: Path) -> None:
+    target = tmp_path / "raw"
+    monkeypatch.setattr(config, "RAW_DATA_DIR", target)
+    cli.main([])
+    for name in CONTRACT_HEADERS:
+        assert (target / name).read_bytes() == (out / name).read_bytes(), name
 
 
 def test_no_forbidden_terms(out: Path) -> None:

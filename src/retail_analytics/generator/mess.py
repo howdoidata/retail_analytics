@@ -24,6 +24,7 @@ from retail_analytics.generator.simulate import (
     Customer,
     Touch,
     World,
+    active_campaigns,
     make_order,
     random_minute,
 )
@@ -80,9 +81,8 @@ REFUND_SHARE = 0.025  # M5: of orders
 ZERO_TOTAL_SHARE = 0.007  # M6: of orders, on real customers (test customers add more)
 
 FIRST_CUSTOMER_ID = 100001
-TEST_NUM_BASE = (
-    1_000_000  # simulation numbers for extra accounts are negative: -k duplicates, below -1e6 tests
-)
+# Simulation numbers for extra accounts are negative: -k for duplicates, below -1e6 for tests.
+TEST_NUM_BASE = 1_000_000
 FIRST_ORDER_ID = 500001
 FIRST_LINE_ID = 1
 FIRST_TOUCH_ID = 1
@@ -141,8 +141,9 @@ def apply(rng: random.Random, world: World) -> Tables:
 
     # M2: a second account with the same email differing by case or whitespace; no orders, no touches.
     duplicates = []
-    for k, original in enumerate(rng.sample(real, round(len(real) * DUPLICATE_SHARE)), start=1):
-        created = min(original.created_at + timedelta(minutes=rng.randrange(1, 120 * 24 * 60)), END)
+    candidates = [c for c in real if c.created_at < END]  # a duplicate is always strictly later
+    for k, original in enumerate(rng.sample(candidates, round(len(real) * DUPLICATE_SHARE)), start=1):
+        created = _later(rng, original.created_at, 1, 120 * 24 * 60)
         duplicates.append(
             Customer(
                 num=-k,
@@ -194,9 +195,10 @@ def apply(rng: random.Random, world: World) -> Tables:
     by_num = {c.num: c for c in real}
     visits = list(world.orders)
     zero = 0
-    for visit in rng.sample(visits, round(len(visits) * ZERO_TOTAL_SHARE)):
+    eligible = [v for v in visits if v.created_at + timedelta(minutes=1) <= END]
+    for visit in rng.sample(eligible, round(len(visits) * ZERO_TOTAL_SHARE)):
         customer = by_num[visit.customer_num]
-        at = min(visit.created_at + timedelta(minutes=rng.randrange(1, 3 * 24 * 60)), END)
+        at = _later(rng, visit.created_at, 1, 3 * 24 * 60)
         order = make_order(rng, customer, at, world.products)
         order.discount_cents = order.subtotal_cents
         orders.append((order, rng.choices(PAID_STATUSES, PAID_WEIGHTS)[0]))
@@ -205,9 +207,10 @@ def apply(rng: random.Random, world: World) -> Tables:
 
     # M5: refunds as their own rows after a real visit, positive total, normal lines, no link to the visit.
     refunds = 0
-    for visit in rng.sample(visits, round(len(visits) * REFUND_SHARE)):
+    eligible = [v for v in visits if v.created_at + timedelta(minutes=60) <= END]
+    for visit in rng.sample(eligible, round(len(visits) * REFUND_SHARE)):
         customer = by_num[visit.customer_num]
-        at = min(visit.created_at + timedelta(minutes=rng.randrange(60, 30 * 24 * 60)), END)
+        at = _later(rng, visit.created_at, 60, 30 * 24 * 60)
         order = make_order(rng, customer, at, world.products)
         order.sales_channel = visit.sales_channel
         orders.append((order, rng.choice(REFUND_STATUSES)))
@@ -267,7 +270,8 @@ def apply(rng: random.Random, world: World) -> Tables:
         email = f"{rng.choice(FIRST_NAMES)}.{rng.choice(LAST_NAMES)}.p{k + 1}@{rng.choice(EMAIL_DOMAINS)}"
         channel = rng.choice([c for c in CHANNELS if c != "In-store"])
         at = random_minute(rng, datetime(2024, 1, 1), END + timedelta(minutes=1))
-        orphan_touches.append(Touch(email.lower(), at, channel, ""))
+        campaigns = active_campaigns(channel, at.date())
+        orphan_touches.append(Touch(email.lower(), at, channel, rng.choice(campaigns) if campaigns else ""))
     touches += orphan_touches
     report["M4_orphan_touches"] = len(orphan_touches)
     touches.sort(key=lambda t: (t.touched_at, t.email, t.channel))
@@ -313,6 +317,12 @@ def apply(rng: random.Random, world: World) -> Tables:
         ],
         report=report,
     )
+
+
+def _later(rng: random.Random, start: datetime, low: int, high: int) -> datetime:
+    """A whole minute `low` to `high` minutes after `start`, never after END (needs start + low <= END)."""
+    last = min(start + timedelta(minutes=high), END)
+    return random_minute(rng, start + timedelta(minutes=low), last + timedelta(minutes=1))
 
 
 def _email_variant(rng: random.Random, email: str) -> str:

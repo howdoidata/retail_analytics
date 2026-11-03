@@ -9,7 +9,7 @@ uv run generate            # seed 42 (default); writes the six CSVs here, overwr
 uv run generate --seed 7   # another seed: different, internally consistent files
 ```
 
-The same seed always gives byte-identical files. The data covers 2024-01-01 to 2025-12-31 (8 quarters,
+The same seed gives byte-identical files on the pinned Python (3.12, `.python-version`). The data covers 2024-01-01 to 2025-12-31 (8 quarters,
 each with sign-ups and visits); marketing touches can start up to 30 days before 2024-01-01.
 
 This page is the reference the staging models (C-5) are built from: what each mess item looks like, and
@@ -47,8 +47,8 @@ Customer ids rise with signup time and skip some numbers (closed accounts). Orde
 ## M1: channel labels
 
 `marketing_touches.channel` and `ad_spend.channel` use the channel labels; `marketing_touches.utm_source`
-uses the source labels. About half the values use the first (canonical) spelling, the rest one of the
-others. Every label maps to exactly one canonical channel after trimming and lowercasing, across both lists.
+uses the source labels. About half the values use the first-listed label (for channel labels, the
+canonical channel name), the rest one of the others. Every label maps to exactly one canonical channel after trimming and lowercasing, across both lists.
 
 | Canonical channel | Channel labels | Source labels | `utm_medium` |
 |---|---|---|---|
@@ -114,4 +114,4 @@ Every visit has a paid status spelled `paid` (~70%), `PAID`, `Paid ` (trailing s
 A clean visit is an order whose status, trimmed and lowercased, is `paid` or `complete` (not a refund),
 with `total > 0`, belonging to a known customer that is not a test account (`@example.com`, or first or
 last name `test`). Customers count once per email after the M2 fix. Seed 42 gives about 18,700 customers
-and 43,500 clean visits: 1.65 visits per active customer per quarter (pooled over the 8 quarters).
+and 43,600 clean visits: 1.65 visits per active customer per quarter (pooled over the 8 quarters).

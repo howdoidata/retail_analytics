@@ -269,7 +269,7 @@ def _touches(rng: random.Random, customer: Customer) -> list[Touch]:
         window = int((signup - first).total_seconds() // 60)  # minutes after the first touch, to signup
         extras = rng.choices((0, 1, 2, 3), (30, 35, 22, 13))[0] if window > 1 else 0
         for _ in range(extras):
-            at = first + timedelta(minutes=1 + rng.randrange(window))
+            at = first + timedelta(minutes=1 + rng.randrange(window - 1))  # strictly before signup
             touches.append(_touch(rng, customer.email, at, rng.choice(others)))
     for _ in range(rng.choices((0, 1, 2, 3), (40, 30, 20, 10))[0]):
         if signup >= END:
