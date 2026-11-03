@@ -141,4 +141,4 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | C-6 | Build the core customer layers | [C-6](stories/C-6.md) | Done |
 | C-7 | Build the sign-ups by channel mart (Ch3) | [C-7](stories/C-7.md) | Done |
 | C-8 | Build the visit funnel mart (Ch3) | [C-8](stories/C-8.md) | Done |
-| C-9 | Build the customer cohorts mart (Ch3) | [C-9](stories/C-9.md) | In review |
+| C-9 | Build the customer cohorts mart (Ch3) | [C-9](stories/C-9.md) | Done |
