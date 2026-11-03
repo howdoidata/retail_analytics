@@ -1,0 +1,33 @@
+.DS_Store
+**/.DS_Store
+.vscode/
+.idea/
+
+# Generated data: the generator rebuilds data/raw/, the build rebuilds data/export/.
+data/raw/*
+!data/raw/README.md
+data/export/*
+!data/export/README.md
+
+# DuckDB files
+*.duckdb
+*.duckdb.wal
+
+# Local credentials and environment files
+.env
+.env.*
+
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# dbt artifacts
+dbt/target/
+dbt/logs/
+dbt/.user.yml
+logs/
+target/

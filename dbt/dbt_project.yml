@@ -1,0 +1,41 @@
+# dbt project for `uv run build`: data/raw/ CSVs -> staging -> intermediate -> marts.
+# Self-contained and offline: no packages.yml, so `dbt deps` is never needed.
+# Layers and mart contracts: docs/data-contracts.md.
+name: retail_analytics
+version: "0.1.0"
+profile: retail_analytics
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target"]
+
+flags:
+  send_anonymous_usage_stats: false
+
+vars:
+  # Visit milestones for the funnel mart; changing them changes no schema.
+  milestones: [1, 2, 3, 5, 10]
+  # Quarters after signup tracked by the cohort mart.
+  cohort_horizon_quarters: 7
+
+models:
+  retail_analytics:
+    staging:
+      +schema: staging
+      +materialized: table
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+    marts:
+      +materialized: table
+
+seeds:
+  retail_analytics:
+    +schema: staging
+
+data_tests:
+  retail_analytics:
+    +severity: error
