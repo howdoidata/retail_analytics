@@ -1,40 +1,56 @@
 # retail_analytics
 
-Flagship How Do I Data demo. **Switchback Outfitters is a fictional outdoor gear shop** (online plus one
-store); **all data in this repo is synthetic and every result is simulated.** The demo follows the shop's
-marketing lead and one question: *which channels bring customers who keep coming back?*
+Flagship How Do I Data demo: which acquisition channels bring customers who keep coming back, answered with
+synthetic data from a fictional outdoor gear shop. All data is synthetic and every result is simulated.
+**Status: In development.**
 
-> **Status: In development.** This README is a stub; sections marked TODO are filled in as the build lands.
+> Bracketed placeholders (`[[NUMBER: …]]` for a figure or measured status, `[[LINK: …]]` for a page not yet live) are filled
+> in as the build lands.
 
 ## What this shows
 
-- **The problem:** TODO (story E-1): the marketing lead has a question the shop's data can't answer yet.
-- **What changes:** TODO (story E-1): messy store and marketing data becomes tested, layered models and three
-  acquisition views by channel.
-- **In past work:** TODO: approved past-work wording only.
-- **What this demo proves:** TODO: measured facts only (model counts, test counts, CI status), added once they exist.
+- **The problem:** the shop's growth and marketing lead wants to know which channels bring customers who
+  keep coming back. The store, marketing, and ad tools each hold part of the answer, but the data is messy:
+  the same customer appears twice, channels are spelled many different ways, and nobody trusts the totals.
+- **What changes:** the raw data cleans and loads itself, is tested on every change, and feeds three views
+  by channel: where customers come from, how fast they come back, and whether they stay.
+- **In past work:**
+  - In past work, customer data from sales, marketing and support systems was joined into one view used across the company.
+  - In past work, joining outside company data to CRM records improved lead conversion.
+  - In past work, automating campaign targeting increased the team's capacity to run campaigns.
+- **What this demo proves:** messy store and marketing data can become a tested, documented answer to an
+  acquisition question, rebuilt from this public repo, with AI working under three controls: limits on what
+  data it sees, human review before results are used, and a record of what it did. Evidence: [measured facts](#measured-facts)
+  and the [build record](#build-record).
 
-## The question
+## The demo company and question
+
+**Switchback Outfitters is a fictional outdoor gear shop** selling online and in one store. **All data in
+this repo is synthetic and every result is simulated.** The question: *Which channels bring customers who
+keep coming back?*
 
 Answered by three views, one mart each (shapes in [`docs/data-contracts.md`](docs/data-contracts.md)):
 
-1. **Where customers come from:** sign-ups by channel and quarter.
-2. **How fast they convert:** visit funnel by channel, from signup through repeat-visit milestones.
-3. **Whether they stay:** cohorts by signup quarter and channel.
+- **Where customers come from:** sign-ups by channel and quarter.
+- **How fast they come back:** visit funnel by channel, from signup through repeat-visit milestones.
+- **Whether they stay:** cohorts by signup quarter and channel.
 
 ## Chapters
 
 | Ch | Block | What was built | Artifact |
 |---|---|---|---|
-| 1 | Data Sources & Tracking | TODO: synthetic generator (story C-4) | TODO |
-| 2 | Data Pipelines & Warehousing | TODO: dbt models on DuckDB, tests, CI | TODO |
-| 3 | Analytics & Data Products | TODO: three views by channel, dashboard (labeled simulated) | TODO |
-| 4 | Data Operations & AI Governance | TODO: build record and data catalog | TODO |
+| 1 | Data Sources & Tracking | A synthetic generator that writes the shop's store, marketing, and ad-spend CSVs with deliberate mess: duplicate customers, channel labels spelled many ways, mixed timestamp formats, orders pointing at missing records, test and junk rows | [`src/retail_analytics/generator/`](src/retail_analytics/generator/), mess reference in [`data/raw/README.md`](data/raw/README.md) |
+| 2 | Data Pipelines & Warehousing | dbt models on DuckDB that fix each mess item, tests that prove it stays fixed, and CI on every change | [`dbt/models/staging/`](dbt/models/staging/), [`dbt/models/intermediate/`](dbt/models/intermediate/), tests in [`dbt/tests/`](dbt/tests/) and [`tests/`](tests/), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
+| 3 | Analytics & Data Products | Three marts by channel (sign-ups, visit funnel, cohorts) and one dashboard, labeled simulated | [`dbt/models/marts/`](dbt/models/marts/); Tableau Public dashboard (simulated): [[LINK: Tableau Public dashboard URL]] |
+| 4 | Data Operations & AI Governance | The build record from idea to production, and a data catalog generated from the dbt descriptions | [`docs/build-record/README.md`](docs/build-record/README.md), [`CATALOG.md`](CATALOG.md) |
 
 ## Build record
 
 How this demo is built, from idea to production, with where AI worked and where a human reviewed it:
-the [build record walkthrough](docs/build-record/README.md). Stages:
+the [build record walkthrough](docs/build-record/README.md). AI works under
+[three controls](docs/build-record/README.md#the-three-ai-controls): limits on what data it sees (synthetic
+demo data and repo content only), human review before work proceeds, and a committed record of what it did.
+Stages:
 
 1. [Idea](docs/build-record/README.md#idea)
 2. [Definition](docs/build-record/README.md#definition)
@@ -44,33 +60,50 @@ the [build record walkthrough](docs/build-record/README.md). Stages:
 6. [Verification](docs/build-record/README.md#verification)
 7. [Production](docs/build-record/README.md#production)
 
+## Measured facts
+
+Measured on this repo, not simulated:
+
+- dbt models: [[NUMBER: dbt model count]]
+- dbt tests: [[NUMBER: dbt test count]]
+- Python tests: [[NUMBER: Python test count]]
+- CI status: [[NUMBER: CI status on main]]
+
+## Data catalog
+
+Every business term, source, model, seed, and column, defined once: [`CATALOG.md`](CATALOG.md), generated
+from the dbt descriptions by `uv run catalog`.
+
+## Links
+
+- Tableau Public dashboard (simulated): [[LINK: Tableau Public dashboard URL]]
+- Story page on howdoidata.com: [[LINK: howdoidata.com story page URL]]
+- Demos page: [[LINK: howdoidata.com Demos page URL]]
+- Repo: [github.com/howdoidata/retail_analytics](https://github.com/howdoidata/retail_analytics)
+
 ## Repo layout
 
 | Path | Contents |
 |---|---|
-| `src/retail_analytics/generator/` | Synthetic source-data generator (TODO, story C-4) |
+| `src/retail_analytics/generator/` | Synthetic source-data generator (`uv run generate`) |
 | `dbt/` | dbt-duckdb project: `models/staging`, `models/intermediate`, `models/marts`, `seeds`, `macros` |
 | `scripts/` | Helper scripts |
 | `tests/` | Python tests |
 | `docs/` | [Data contracts](docs/data-contracts.md), [build record](docs/build-record/README.md) |
+| `CATALOG.md` | Generated data catalog (`uv run catalog`) |
 | `data/raw/`, `data/export/` | Generated CSVs (not committed) |
 
 ## Quick start
 
 ```bash
 uv sync
-uv run ruff check . && uv run pytest
+uv run generate
 uv run build
+uv run catalog
+uv run ruff check . && uv run pytest
 ```
 
 Standards and review rules: [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Links
-
-- Data catalog: TODO (`CATALOG.md`)
-- Tableau Public dashboard: TODO
-- Story page on howdoidata.com: TODO (once live)
-- Demos: TODO
 
 ## License
 
