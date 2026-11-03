@@ -104,8 +104,8 @@ accepted or rejected and why. Recorded in each story's "Review outcome" section.
 ## Verification
 
 **What is shown:** Python tests, dbt tests, and CI on every change. Each story's record links its CI run.
-C-1 (spec only) and C-3 (no commit yet) made no commit to this repo, so they have no CI run, and C-2 came
-before the PR flow (no PR); the details are in their records.
+C-1 (spec only) made no commit to this repo, so it has no CI run, and C-2 came before the PR flow (no PR);
+the details are in their records.
 
 - CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`)
 - Python tests: [`tests/`](../../tests)
@@ -134,4 +134,4 @@ One record per story in [`stories/`](stories), written in the story's own pull r
 | C-1 | Write down the flagship data contracts | [C-1](stories/C-1.md) | Done |
 | C-2 | Create and scaffold the flagship repo with minimal CI | [C-2](stories/C-2.md) | Done |
 | C-3 | Author the Tableau dashboard on sample extracts | [C-3](stories/C-3.md) | In progress |
-| D-1 | Set up the build-record trail and walkthrough skeleton | [D-1](stories/D-1.md) | In review |
+| D-1 | Set up the build-record trail and walkthrough skeleton | [D-1](stories/D-1.md) | Done |
