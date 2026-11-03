@@ -119,3 +119,75 @@ models:
               arguments:
                 values: [true]
                 quote: false
+
+  - name: fct_customer_cohorts
+    description: >
+      Whether customers stay: one row per acquisition channel, signup quarter, and quarters since signup, in
+      long format, so a longer horizon adds rows, never columns. {{ doc("customer") }} {{ doc("cohort") }}
+      Offsets run from 0 (the signup quarter) to the `cohort_horizon_quarters` variable (default 7); visits
+      after the horizon are not counted. Every channel in the `channels` seed has a row for every quarter from
+      the first to the last quarter with a sign-up and every offset whose quarter is not after the quarter
+      the data ends (the latest signup or visit date), with 0 customers where there were none. Every cohort
+      is kept, including ones too young to reach later offsets. The rows for the quarter the data ends in
+      may cover only part of that quarter, so their active_rate can read low. Reads only `dim_customers`,
+      `int_customer_visits`, and the `channels` seed. All values simulated.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: ['channel', 'cohort_quarter', 'quarters_since_signup']
+    columns:
+      - name: channel
+        description: '{{ doc("acquisition_channel") }} {{ doc("channel") }}'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: cohort_quarter
+        description: First day of the customers' signup quarter (UTC signup date).
+        data_tests:
+          - not_null
+      - name: quarters_since_signup
+        description: >
+          Calendar quarters from the signup quarter to this quarter: 0 for the signup quarter, up to the
+          `cohort_horizon_quarters` variable. {{ doc("cohort") }}
+        data_tests:
+          - not_null
+      - name: cohort_size
+        description: >
+          Customers in the cohort: every customer the channel acquired in the signup quarter, the same on
+          every offset row. {{ doc("signup") }}
+        data_tests:
+          - not_null
+      - name: active_customers
+        description: >
+          {{ doc("active_customer") }} Counted once each however many visits they made; never more than
+          cohort_size.
+        data_tests:
+          - not_null
+      - name: active_rate
+        description: >
+          active_customers / cohort_size, from 0 to 1; null when the cohort is empty.
+      - name: visits
+        description: >
+          Visits by cohort customers in this quarter; 0 when none. {{ doc("visit") }}
+        data_tests:
+          - not_null
+      - name: visits_per_active_customer
+        description: visits / active_customers; null when no cohort customer visited in this quarter.
+      - name: revenue
+        description: >
+          Sum of the order totals of those visits, in dollars (simulated); 0.00 when none.
+        data_tests:
+          - not_null
+      - name: average_order
+        description: revenue / visits, in dollars; null when there were no visits.
+      - name: is_simulated
+        description: Always true. Every value in this mart is synthetic.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true]
+                quote: false

@@ -58,3 +58,16 @@ The share of customers at the previous step who reach this one: customers reachi
 customers reaching the milestone before it, from 0 to 1. To roll cohorts or months up, sum the customer
 counts and divide the sums; never average step rates.
 {% enddocs %}
+
+{% docs cohort %}
+A signup cohort: the customers acquired by one channel whose signup date falls in one calendar quarter.
+Quarters since signup count calendar quarters from the signup quarter (0) to the visit's quarter, so a
+sign-up on 31 March and a visit on 1 April are one quarter apart.
+{% enddocs %}
+
+{% docs active_customer %}
+An active customer in a quarter: a cohort customer with at least one visit in that calendar quarter. To roll
+cohorts up, take one quarters_since_signup, sum cohort_size, active_customers, visits, and revenue across
+cohorts (channels or cohort quarters), and divide the sums; never sum across offsets (cohort_size repeats on
+every offset row and a customer can be active at several) and never average stored rates.
+{% enddocs %}
