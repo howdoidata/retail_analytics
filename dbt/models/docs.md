@@ -32,9 +32,9 @@ offset, `YYYY-MM-DD HH:MM:SS`, `MM/DD/YYYY HH:MM`); values without an offset are
 
 {% docs acquisition_channel %}
 The channel that brought the customer in, by first touch: the channel of the customer's earliest marketing
-touch at or before signup (`touched_at <= created_at`, so a touch at the signup minute counts). Touches are
-ordered to the minute; touches in the same minute go to the lowest touch id. Touches after signup never
-count. A customer with no touch at or before signup has no acquisition channel and fails the build. First
+touch at or before the signup time (`touched_at <= created_at`). Touches at the same time (source
+timestamps are whole minutes, so same-minute touches tie) go to the lowest touch id. Touches after signup
+never count. A customer with no touch at or before signup has no acquisition channel and fails the build. First
 touch is the only attribution rule modeled.
 {% enddocs %}
 

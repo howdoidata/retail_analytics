@@ -119,8 +119,8 @@ def test_customer_visits(fixture_build: Path) -> None:
 
 def test_dim_customers(fixture_build: Path) -> None:
     """First touch: customer 1, earliest of two pre-signup channels (Paid Social, though not the lowest id),
-    a later Email touch ignored; customer 2, In-store touch at the signup minute; customer 3, two touches in
-    the same minute, lowest id (Referral) wins; customer 4, earliest pre-signup touch (Email) over a later
+    a later Email touch ignored; customer 2, In-store touch at the signup time; customer 3, two touches at
+    the same time, lowest id (Referral) wins; customer 4, earliest pre-signup touch (Email) over a later
     pre-signup Referral and a post-signup Paid Search. Every milestone is a key; null when not reached;
     customer 3 has no visits, so every date is null."""
     assert rows(fixture_build, "select * from intermediate.dim_customers order by customer_id") == [
@@ -251,6 +251,13 @@ BROKEN = {
         "channel",
         "TikTok",
         "relationships_dim_customers_acquisition_channel__channel__ref_channels_",
+    ),
+    "order of an unknown customer": (
+        "stg_orders",
+        "205",
+        "customer_id",
+        "99",
+        "assert_visit_count_matches_orders",
     ),
 }
 

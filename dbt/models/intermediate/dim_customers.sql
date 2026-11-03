@@ -35,7 +35,7 @@ first_touches as (
     qualify row_number() over (
         partition by customers.id
         order by
-            date_trunc('minute', touches.touched_at),
+            touches.touched_at,
             touches.id
     ) = 1
 
