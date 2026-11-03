@@ -56,3 +56,66 @@ models:
               arguments:
                 values: [true]
                 quote: false
+
+  - name: fct_visit_funnel_by_channel
+    description: >
+      How fast customers convert: one row per acquisition channel, signup cohort month, and milestone, in long
+      format, so a new milestone adds rows, never columns. {{ doc("customer") }} {{ doc("milestone") }}
+      Milestone 0 is the signup. Every channel in the `channels` seed has a row for every milestone of every
+      month from the first to the last month with a sign-up or spend, with 0 customers where there were none.
+      Every cohort is kept, including ones too young to reach later milestones. To roll months up, sum
+      customers_reached and ad_spend, recompute step_rate from the sums, and weight avg_days_from_previous by
+      customers_reached. Reads only `dim_customers`, `int_channel_spend_daily`, and the `channels` seed. All
+      values simulated.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: ['channel', 'cohort_month', 'milestone']
+    columns:
+      - name: channel
+        description: '{{ doc("acquisition_channel") }} {{ doc("channel") }}'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: cohort_month
+        description: First day of the customers' signup month (UTC signup date).
+        data_tests:
+          - not_null
+      - name: milestone
+        description: >
+          0 for the signup, else the visit number n of a milestone. {{ doc("milestone") }}
+        data_tests:
+          - not_null
+      - name: previous_milestone
+        description: >
+          The step before this milestone in sorted order: 0 (signup) for the first visit milestone; null on
+          the signup row.
+      - name: customers_reached
+        description: >
+          Customers in the cohort who reached this milestone. On the signup row, the cohort size: every
+          customer who signed up that month. {{ doc("signup") }} Never rises as the milestone rises.
+        data_tests:
+          - not_null
+      - name: step_rate
+        description: >
+          {{ doc("step_rate") }} Null on the signup row and when no customer reached the previous step.
+      - name: avg_days_from_previous
+        description: >
+          Mean calendar days from the previous milestone's date (the signup date for the first visit
+          milestone) to this milestone's date, over the customers who reached this milestone; null on the
+          signup row and when no customer reached it.
+      - name: ad_spend
+        description: >
+          {{ doc("ad_spend") }} Total for the channel and month, in dollars, on the signup row only (0 when the
+          channel had no spend); null on every other row, so summing the column never double counts.
+      - name: is_simulated
+        description: Always true. Every value in this mart is synthetic.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [true]
+                quote: false

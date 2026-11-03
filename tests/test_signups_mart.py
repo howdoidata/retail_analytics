@@ -14,14 +14,13 @@ from pathlib import Path
 
 import duckdb
 import pytest
-from dbt.cli.main import dbtRunnerResult
+from mart_fixtures import INTERMEDIATE_FIXTURES as FIXTURES
+from mart_fixtures import mart_build
 from test_staging import FIXTURES as RAW_FIXTURES
 from test_staging import dbt_build, failed, rows
 
-from retail_analytics.config import DBT_DIR
 from retail_analytics.generator import generate
 
-FIXTURES = Path(__file__).resolve().parent / "fixtures" / "intermediate"
 MART = "main.fct_signups_by_channel"
 CONTRACT_COLUMNS = [
     ("channel", "VARCHAR"),
@@ -34,57 +33,12 @@ CONTRACT_COLUMNS = [
     ("cost_per_signup", "DECIMAL(18,2)"),
     ("is_simulated", "BOOLEAN"),
 ]
-# Column types of the intermediate models the mart reads, in model column order. The dim_customers fixture
-# leaves out `milestone_dates` (the mart does not read it); the loader adds it as an empty map column.
-INTERMEDIATE_TYPES = {
-    "dim_customers": {
-        "customer_id": "bigint",
-        "signup_date": "date",
-        "signup_location": "varchar",
-        "acquisition_channel": "varchar",
-    },
-    "int_channel_spend_daily": {
-        "channel": "varchar",
-        "spend_date": "date",
-        "ad_spend": "decimal(18, 2)",
-    },
-}
-
-
-def mart_build(intermediate_dir: Path, work: Path) -> dbtRunnerResult:
-    """Load the intermediate fixtures into `intermediate` and the `channels` seed into `staging` of
-    `work/warehouse.duckdb`, run the spend model's tests on its fixture, then `dbt build --select marts`.
-    Returns the first failing result, else the mart build's."""
-    with duckdb.connect(str(work / "warehouse.duckdb")) as con:
-        con.execute("create schema intermediate")
-        con.execute("create schema staging")
-        for table, types in INTERMEDIATE_TYPES.items():
-            columns = ", ".join(f"'{name}': '{kind}'" for name, kind in types.items())
-            con.execute(
-                f"create table intermediate.{table} as select * from read_csv("
-                f"'{intermediate_dir / f'{table}.csv'}', header = true, columns = {{{columns}}})"
-            )
-        con.execute("alter table intermediate.dim_customers add column milestone_dates map(integer, date)")
-        con.execute(
-            f"create table staging.channels as select * from read_csv("
-            f"'{DBT_DIR / 'seeds' / 'channels.csv'}', header = true, columns = {{'channel': 'varchar'}})"
-        )
-    # The spend total check compares against stg_ad_spend, which has no fixture here.
-    spend_tests = dbt_build(
-        RAW_FIXTURES,
-        work,
-        select=("int_channel_spend_daily,test_type:generic",),
-        command="test",
-    )
-    if not spend_tests.success:
-        return spend_tests
-    return dbt_build(RAW_FIXTURES, work, select=("marts",))
 
 
 @pytest.fixture(scope="module")
 def fixture_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
     work = tmp_path_factory.mktemp("mart_fixtures")
-    result = mart_build(FIXTURES, work)
+    result = mart_build(FIXTURES, work, "fct_signups_by_channel")
     assert result.success, failed(result)
     return work
 
@@ -156,11 +110,7 @@ def test_every_mart_node_is_described(fixture_build: Path) -> None:
     """The mart and every column have a description, the documented columns are the contract's in order,
     and the shared terms come from doc blocks."""
     manifest = json.loads((fixture_build / "target" / "manifest.json").read_text(encoding="utf-8"))
-    nodes = [
-        n for n in manifest["nodes"].values() if n["resource_type"] == "model" and n["fqn"][1] == "marts"
-    ]
-    assert [n["name"] for n in nodes] == ["fct_signups_by_channel"]
-    [mart] = nodes
+    mart = manifest["nodes"]["model.retail_analytics.fct_signups_by_channel"]
     assert mart["description"].strip()
     assert list(mart["columns"]) == [name for name, _ in CONTRACT_COLUMNS]
     for column in mart["columns"].values():
@@ -233,7 +183,7 @@ def test_broken_fixture_fails_its_test(case: str, tmp_path: Path) -> None:
     shutil.copytree(FIXTURES, intermediate)
     append_row(intermediate / f"{table}.csv", line)
 
-    result = mart_build(intermediate, tmp_path)
+    result = mart_build(intermediate, tmp_path, "fct_signups_by_channel")
     assert not result.success
     assert failed(result) >= expected, failed(result)
 
@@ -245,7 +195,7 @@ def test_spend_after_the_last_signup_extends_the_grid(tmp_path: Path) -> None:
     shutil.copytree(FIXTURES, intermediate)
     append_row(intermediate / "int_channel_spend_daily.csv", "Paid Search,2025-01-05,25.00")
 
-    result = mart_build(intermediate, tmp_path)
+    result = mart_build(intermediate, tmp_path, "fct_signups_by_channel")
     assert result.success, failed(result)
     assert rows(
         tmp_path,
@@ -290,7 +240,7 @@ BROKEN_MART = {
 @pytest.mark.parametrize("case", BROKEN_MART, ids=list(BROKEN_MART))
 def test_broken_mart_fails_its_test(case: str, tmp_path: Path) -> None:
     sql, expected = BROKEN_MART[case]
-    result = mart_build(FIXTURES, tmp_path)
+    result = mart_build(FIXTURES, tmp_path, "fct_signups_by_channel")
     assert result.success, failed(result)
     with duckdb.connect(str(tmp_path / "warehouse.duckdb")) as con:
         con.execute(sql.format(mart=MART))

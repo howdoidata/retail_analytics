@@ -52,3 +52,9 @@ A sign-up: a customer's account creation, counted once per customer in the quart
 {% docs ad_spend %}
 Simulated marketing spend in dollars, by channel and day, summed over campaigns.
 {% enddocs %}
+
+{% docs step_rate %}
+The share of customers at the previous step who reach this one: customers reaching this milestone divided by
+customers reaching the milestone before it, from 0 to 1. To roll cohorts or months up, sum the customer
+counts and divide the sums; never average step rates.
+{% enddocs %}
