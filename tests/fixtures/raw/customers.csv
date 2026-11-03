@@ -1,0 +1,14 @@
+id,created_at,email,first_name,last_name,state,signup_location,accepts_marketing
+1,2024-01-05T10:00:00Z,ana.reyes.1@inbox.test,Ana,Reyes,CO,online,true
+2,2024-01-06T09:30:00-05:00,ben.cole.2@mail.test,Ben,Cole,UT,store,false
+3,2024-02-01 08:15:00,cara.diaz.3@inbox.test,Cara,Diaz,WA,online,true
+4,02/10/2024 17:45,dev.ng.4@mail.test,Dev,Ng,OR,online,false
+5,2024-04-01T00:00:00Z,Eve.Fox.9@inbox.test,Eve,Fox,ID,online,true
+6,2024-03-01T12:00:00Z,ANA.REYES.1@INBOX.TEST,Ana,Reyes,CO,online,true
+7,2024-03-02 12:00:00," ben.cole.2@mail.test",Ben,Cole,UT,online,false
+8,2024-02-01T00:15:00-08:00,"Cara.Diaz.3@inbox.test ",Cara,Diaz,WA,store,true
+9,2024-03-10T00:00:00Z,eve.fox.9@inbox.test,Eve,Fox,ID,store,false
+10,2024-03-15T00:00:00Z,test10@example.com,Test,User,NV,online,false
+11,03/16/2024 08:00,qa11@example.com,Quinn,Park,NV,online,true
+12,2024-03-17 00:00:00,gil.mora.12@inbox.test,Gil,test,AZ,online,false
+13,2024-03-31T21:00:00-07:00,hal.ito.13@mail.test,Hal,Ito,,store,true

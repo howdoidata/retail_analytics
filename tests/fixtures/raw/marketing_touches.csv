@@ -1,0 +1,10 @@
+id,customer_email,touched_at,channel,campaign,utm_source,utm_medium,utm_campaign
+1,ana.reyes.1@inbox.test,2024-01-01T10:00:00Z,fb,Winter Sale,Facebook,paid_social,winter_sale
+2,ana.reyes.1@inbox.test,2024-01-04 09:00:00,Google Ads,Trail Search,google,cpc,trail_search
+3,ben.cole.2@mail.test,01/06/2024 14:30,In Store,,in_store,offline,
+4,cara.diaz.3@inbox.test,2024-01-20T08:00:00-08:00,SEO,,duckduckgo,organic,
+5,DEV.NG.4@MAIL.TEST,2024-02-01T00:00:00Z,E-mail,Spring Letter,Newsletter,email,spring_letter
+6,eve.fox.9@inbox.test,2024-03-01 18:00:00,Referral Partner,Gear Guide,Partner Blog,referral,gear_guide
+7,hal.ito.13@mail.test,03/30/2024 22:00,(direct),,(none),(none),
+8,lost.person.p1@inbox.test,2024-02-02T00:00:00Z,Paid Social,Winter Sale,ig,paid_social,winter_sale
+9,test10@example.com,2024-03-14T00:00:00Z,Email,Spring Letter,mailer,email,spring_letter

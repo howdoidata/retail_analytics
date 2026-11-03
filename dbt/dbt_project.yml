@@ -16,6 +16,8 @@ flags:
   send_anonymous_usage_stats: false
 
 vars:
+  # Folder the source CSVs are read from (see models/staging/_sources.yml); relative to the repo root.
+  raw_data_dir: data/raw
   # Visit milestones for the funnel mart; changing them changes no schema.
   milestones: [1, 2, 3, 5, 10]
   # Quarters after signup tracked by the cohort mart.

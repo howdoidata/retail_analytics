@@ -1,0 +1,211 @@
+version: 2
+
+models:
+  - name: stg_customers
+    description: >
+      One row per customer. {{ doc("customer") }} Fixes: emails trimmed and lowercased and one row kept
+      per email (M2), timestamps parsed to UTC (M3), test accounts dropped (M6).
+    columns:
+      - name: id
+        description: Customer id (the id of the account kept for the email).
+        data_tests:
+          - unique
+          - not_null
+      - name: created_at
+        description: 'Signup time. {{ doc("utc_timestamp") }}'
+        data_tests:
+          - not_null
+      - name: email
+        description: Email, trimmed and lowercased (M2); one row per email.
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: First name.
+      - name: last_name
+        description: Last name.
+      - name: state
+        description: Two-letter US state code.
+      - name: signup_location
+        description: Where the customer signed up, `online` or `store`.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['online', 'store']
+      - name: accepts_marketing
+        description: Whether the customer accepts marketing.
+
+  - name: stg_orders
+    description: >
+      One row per clean visit. {{ doc("clean_visit") }} Fixes: timestamps parsed to UTC (M3), orders of
+      unknown customers dropped (M4), status trimmed and lowercased with `complete` as `paid` and refunds
+      dropped (M5), zero-total orders and orders of test accounts dropped (M6).
+    columns:
+      - name: id
+        description: Order id.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: Id of the ordering customer, always a customer in `stg_customers` (M4).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: id
+      - name: created_at
+        description: 'Visit time. {{ doc("utc_timestamp") }}'
+        data_tests:
+          - not_null
+      - name: sales_channel
+        description: Where the visit happened, `online` or `store`.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['online', 'store']
+      - name: status
+        description: Order status after the M5 fix; always `paid`.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['paid']
+      - name: subtotal
+        description: Sum of the order's line quantity times unit price, in dollars.
+      - name: discount
+        description: Discount in dollars.
+      - name: total
+        description: Subtotal minus discount, in dollars; always above zero (M6).
+        data_tests:
+          - not_null
+      - name: currency
+        description: Currency code (`USD`).
+
+  - name: stg_order_lines
+    description: One row per line of a clean visit; lines of orders dropped from `stg_orders` are dropped too.
+    columns:
+      - name: id
+        description: Order line id.
+        data_tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: Id of the order, always an order in `stg_orders`.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: id
+      - name: product_id
+        description: Id of the product sold.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_products')
+                field: id
+      - name: quantity
+        description: Units sold.
+      - name: unit_price
+        description: Price per unit in dollars.
+
+  - name: stg_products
+    description: One row per product in the outdoor gear catalog.
+    columns:
+      - name: id
+        description: Product id.
+        data_tests:
+          - unique
+          - not_null
+      - name: title
+        description: Product name.
+      - name: category
+        description: Product category.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['camping', 'climbing', 'footwear', 'apparel', 'packs']
+      - name: list_price
+        description: List price in dollars.
+
+  - name: stg_marketing_touches
+    description: >
+      One row per marketing touch of a customer. Fixes: emails trimmed and lowercased (M2), timestamps
+      parsed to UTC (M3), channel and utm_source labels mapped to canonical channels (M1), touches whose
+      email matches no customer in `stg_customers` dropped (M4).
+    columns:
+      - name: id
+        description: Touch id.
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_email
+        description: Email of the customer touched, trimmed and lowercased; always a customer in `stg_customers` (M4).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: email
+      - name: touched_at
+        description: 'Touch time. {{ doc("utc_timestamp") }}'
+        data_tests:
+          - not_null
+      - name: channel
+        description: '{{ doc("channel") }} Mapped from the source channel label (M1).'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: campaign
+        description: Campaign name; null for touches with no campaign.
+      - name: utm_source
+        description: UTM source label, trimmed and lowercased.
+        data_tests:
+          - not_null
+      - name: utm_source_channel
+        description: '{{ doc("channel") }} Mapped from utm_source (M1).'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: utm_medium
+        description: UTM medium; one value per canonical channel.
+      - name: utm_campaign
+        description: Campaign lowercased with spaces as `_`; null when campaign is.
+
+  - name: stg_ad_spend
+    description: >
+      One row per date, channel, and campaign of simulated ad spend. Fixes: dates parsed from two forms
+      (M3), channel labels mapped to canonical channels (M1).
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: ['date', 'channel', 'campaign']
+    columns:
+      - name: date
+        description: Day of the spend.
+        data_tests:
+          - not_null
+      - name: channel
+        description: '{{ doc("channel") }} Mapped from the source channel label (M1).'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: campaign
+        description: Campaign name.
+        data_tests:
+          - not_null
+      - name: spend
+        description: Simulated spend in dollars.
+        data_tests:
+          - not_null
