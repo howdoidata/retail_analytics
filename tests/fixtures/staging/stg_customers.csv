@@ -1,0 +1,5 @@
+id,created_at,email,first_name,last_name,state,signup_location,accepts_marketing
+1,2024-01-05 10:00:00,ana.reyes.1@inbox.test,Ana,Reyes,CO,online,true
+2,2024-01-06 14:30:00,ben.cole.2@mail.test,Ben,Cole,UT,store,false
+3,2024-02-01 08:15:00,cara.diaz.3@inbox.test,Cara,Diaz,WA,online,true
+4,2024-02-10 17:45:00,dev.ng.4@mail.test,Dev,Ng,OR,online,false

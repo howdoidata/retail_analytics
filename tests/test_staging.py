@@ -45,16 +45,20 @@ def env(name: str, value: str) -> Iterator[None]:
             os.environ[name] = old
 
 
-def dbt_build(raw_dir: Path, work: Path) -> dbtRunnerResult:
-    """`dbt build` of the whole project (seeds + staging) on `raw_dir` into `work/warehouse.duckdb`."""
+def dbt_build(
+    raw_dir: Path, work: Path, select: tuple[str, ...] = (), extra_vars: dict | None = None
+) -> dbtRunnerResult:
+    """`dbt build` on `raw_dir` into `work/warehouse.duckdb`: the whole project, or only `select`."""
     args = [
         "build",
         "--project-dir", str(DBT_DIR),
         "--profiles-dir", str(DBT_DIR),
         "--target-path", str(work / "target"),
         "--log-path", str(work / "logs"),
-        "--vars", json.dumps({"raw_data_dir": str(raw_dir)}),
+        "--vars", json.dumps({"raw_data_dir": str(raw_dir), **(extra_vars or {})}),
     ]  # fmt: skip
+    if select:
+        args += ["--select", *select]
     with env("RETAIL_DUCKDB_PATH", str(work / "warehouse.duckdb")):
         return dbtRunner().invoke(args)
 
@@ -184,10 +188,14 @@ def test_channel_seed_covers_every_canonical_channel(fixture_build: Path) -> Non
 
 
 def test_every_node_is_described(fixture_build: Path) -> None:
-    """Every model, seed, and source, and every column of each, has a description, and the documented
-    columns are exactly the built (or source) columns."""
+    """Every staging model, seed, and source, and every column of each, has a description, and the
+    documented columns are exactly the built (or source) columns. Later layers: their own test files."""
     manifest = json.loads((fixture_build / "target" / "manifest.json").read_text(encoding="utf-8"))
-    nodes = [n for n in manifest["nodes"].values() if n["resource_type"] in {"model", "seed"}]
+    nodes = [
+        n
+        for n in manifest["nodes"].values()
+        if n["resource_type"] == "seed" or (n["resource_type"] == "model" and n["fqn"][1] == "staging")
+    ]
     sources = list(manifest["sources"].values())
     assert sorted(n["name"] for n in nodes) == sorted(STAGING_MODELS + SEEDS)
     assert len(sources) == 6

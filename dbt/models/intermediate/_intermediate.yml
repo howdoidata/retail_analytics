@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: int_customer_visits
+    description: >
+      One row per customer and visit number. {{ doc("visit") }} Every row of `stg_orders` is one visit,
+      numbered from 1 per customer in time order (visits at the same time by order id). Days are calendar
+      days between UTC dates.
+    data_tests:
+      - unique_combination:
+          arguments:
+            columns: ['customer_id', 'visit_number']
+    columns:
+      - name: customer_id
+        description: 'Id of the visiting customer. {{ doc("customer") }}'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: id
+      - name: visit_number
+        description: The visit's place in the customer's visits, consecutive from 1.
+        data_tests:
+          - not_null
+      - name: order_id
+        description: Id of the order that is this visit; one row per order in `stg_orders`.
+        data_tests:
+          - unique
+          - not_null
+      - name: visit_date
+        description: Date of the visit (UTC).
+        data_tests:
+          - not_null
+      - name: order_total
+        description: Order total in dollars.
+        data_tests:
+          - not_null
+      - name: days_since_signup
+        description: Calendar days from the customer's signup date to the visit date; never negative.
+        data_tests:
+          - not_null
+      - name: days_since_previous_visit
+        description: >
+          Calendar days from the previous visit's date to this one; 0 for visits on the same day; null on
+          visit 1 only.
+
+  - name: dim_customers
+    description: >
+      One row per customer. {{ doc("customer") }} Carries the signup date, the acquisition channel, and the
+      date of each visit milestone; customers with no visits are included with every milestone date null.
+    columns:
+      - name: customer_id
+        description: Customer id, as in `stg_customers`.
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_customers')
+                field: id
+      - name: signup_date
+        description: Date the customer signed up (UTC).
+        data_tests:
+          - not_null
+      - name: signup_location
+        description: Where the customer signed up, `online` or `store`.
+      - name: acquisition_channel
+        description: '{{ doc("acquisition_channel") }} {{ doc("channel") }}'
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('channels')
+                field: channel
+      - name: milestone_dates
+        description: >
+          {{ doc("milestone") }} A map from each configured milestone to the date the customer reached it,
+          null when not reached; every milestone is a key. `milestone_dates[3]` is the third-visit date.
+          Dates never decrease as the milestone rises.
