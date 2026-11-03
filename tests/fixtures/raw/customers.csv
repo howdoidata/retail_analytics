@@ -12,3 +12,4 @@ id,created_at,email,first_name,last_name,state,signup_location,accepts_marketing
 11,03/16/2024 08:00,qa11@example.com,Quinn,Park,NV,online,true
 12,2024-03-17 00:00:00,gil.mora.12@inbox.test,Gil,test,AZ,online,false
 13,2024-03-31T21:00:00-07:00,hal.ito.13@mail.test,Hal,Ito,,store,true
+15,2024-03-18T00:00:00Z,test.lane.15@inbox.test,test,Lane,MT,online,false

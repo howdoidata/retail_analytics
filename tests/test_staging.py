@@ -60,6 +60,8 @@ def dbt_build(raw_dir: Path, work: Path) -> dbtRunnerResult:
 
 
 def failed(result: dbtRunnerResult) -> set[str]:
+    if result.result is None:  # dbt raised before running anything
+        return {f"dbt raised: {result.exception!r}"}
     return {r.node.name for r in result.result if str(r.status) in {"fail", "error"}}
 
 
@@ -86,17 +88,29 @@ def fixture_build(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return work
 
 
+CLEAN_CUSTOMERS = [
+    (1, datetime(2024, 1, 5, 10, 0), "ana.reyes.1@inbox.test", "Ana", "Reyes", "CO", "online", True),
+    (2, datetime(2024, 1, 6, 14, 30), "ben.cole.2@mail.test", "Ben", "Cole", "UT", "store", False),
+    (3, datetime(2024, 2, 1, 8, 15), "cara.diaz.3@inbox.test", "Cara", "Diaz", "WA", "online", True),
+    (4, datetime(2024, 2, 10, 17, 45), "dev.ng.4@mail.test", "Dev", "Ng", "OR", "online", False),
+    (9, datetime(2024, 3, 10, 0, 0), "eve.fox.9@inbox.test", "Eve", "Fox", "ID", "store", False),
+    (13, datetime(2024, 4, 1, 4, 0), "hal.ito.13@mail.test", "Hal", "Ito", None, "store", True),
+]
+
+
 def test_customers_m2_m3_m6(fixture_build: Path) -> None:
     """M2: emails trimmed + lowercased, earliest created_at (then lowest id) kept per email; M3: four forms
     to UTC; M6: test accounts dropped; empty strings to null."""
-    assert rows(fixture_build, "select * from staging.stg_customers order by id") == [
-        (1, datetime(2024, 1, 5, 10, 0), "ana.reyes.1@inbox.test", "Ana", "Reyes", "CO", "online", True),
-        (2, datetime(2024, 1, 6, 14, 30), "ben.cole.2@mail.test", "Ben", "Cole", "UT", "store", False),
-        (3, datetime(2024, 2, 1, 8, 15), "cara.diaz.3@inbox.test", "Cara", "Diaz", "WA", "online", True),
-        (4, datetime(2024, 2, 10, 17, 45), "dev.ng.4@mail.test", "Dev", "Ng", "OR", "online", False),
-        (9, datetime(2024, 3, 10, 0, 0), "eve.fox.9@inbox.test", "Eve", "Fox", "ID", "store", False),
-        (13, datetime(2024, 4, 1, 4, 0), "hal.ito.13@mail.test", "Hal", "Ito", None, "store", True),
-    ]
+    assert rows(fixture_build, "select * from staging.stg_customers order by id") == CLEAN_CUSTOMERS
+
+
+def test_timestamps_are_utc_in_any_session_time_zone(fixture_build: Path) -> None:
+    """M3: the compiled model gives the same UTC values when the session is not on UTC (CI runs on UTC)."""
+    compiled = fixture_build / "target" / "compiled" / "retail_analytics" / "models" / "staging"
+    sql = (compiled / "stg_customers.sql").read_text(encoding="utf-8")
+    with duckdb.connect() as con:
+        con.execute("set TimeZone = 'America/Denver'")
+        assert con.execute(f"select * from ({sql}) order by id").fetchall() == CLEAN_CUSTOMERS
 
 
 def test_orders_are_clean_visits(fixture_build: Path) -> None:
@@ -213,7 +227,7 @@ def test_mess_tests_exist(fixture_build: Path) -> None:
         "unique_combination_stg_ad_spend_date__channel__campaign",  # grain
     ):
         assert name in tests, name
-    for model in STAGING_MODELS[:-1]:
+    for model in (m for m in STAGING_MODELS if m != "stg_ad_spend"):  # grain tested by unique_combination
         assert {f"unique_{model}_id", f"not_null_{model}_id"} <= tests, model
 
 
@@ -262,6 +276,17 @@ def test_broken_fixture_fails_its_test(case: str, tmp_path: Path) -> None:
     result = dbt_build(raw, tmp_path)
     assert not result.success
     assert expected in failed(result), failed(result)
+
+
+def test_duplicate_ad_spend_key_fails_grain_test(tmp_path: Path) -> None:
+    """Two labels of one channel on the same date and campaign collide after M1 mapping."""
+    raw = tmp_path / "raw"
+    shutil.copytree(FIXTURES, raw)
+    with (raw / "ad_spend.csv").open("a", encoding="utf-8") as f:
+        f.write("2024-01-01,cpc,Trail Search,5.00\n")  # same key as `2024-01-01,Paid Search,Trail Search`
+    result = dbt_build(raw, tmp_path)
+    assert not result.success
+    assert "unique_combination_stg_ad_spend_date__channel__campaign" in failed(result), failed(result)
 
 
 def test_seed_42_end_to_end(tmp_path: Path) -> None:

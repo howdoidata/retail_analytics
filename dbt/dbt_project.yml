@@ -16,7 +16,8 @@ flags:
   send_anonymous_usage_stats: false
 
 vars:
-  # Folder the source CSVs are read from (see models/staging/_sources.yml); relative to the repo root.
+  # Folder the source CSVs are read from (see models/staging/_sources.yml). Relative to dbt's working
+  # directory, which is the repo root for `uv run build` and the documented commands.
   raw_data_dir: data/raw
   # Visit milestones for the funnel mart; changing them changes no schema.
   milestones: [1, 2, 3, 5, 10]

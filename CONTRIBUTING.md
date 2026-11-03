@@ -42,10 +42,10 @@ CI (`.github/workflows/ci.yml`) runs the same lint, tests, and `dbt parse` on ev
 
 - **One model per file**, named for its layer: `stg_<source>`, `int_<entity>_<grain>`,
   `dim_<entity>`, `fct_<subject>`.
-- **Layers:** staging reads sources and seeds only; intermediate reads staging; marts read
-  only the dimension and intermediate layers.
-- **Staging may read staging** only to drop rows whose parent was dropped (for example,
-  `stg_orders` keeps only orders of customers kept in `stg_customers`).
+- **Layers:** staging reads sources and seeds, and reads staging only to drop rows whose parent
+  was dropped (`stg_orders` and `stg_marketing_touches` read `stg_customers`; `stg_order_lines`
+  reads `stg_orders`); intermediate reads staging; marts read only the dimension and
+  intermediate layers.
 - **Style:** lowercase keywords and identifiers, snake_case names, four-space indents,
   trailing commas, one column per line in select lists.
 - **CTEs over subqueries:** import CTEs at the top (one per `ref`/`source`), then logical CTEs,
