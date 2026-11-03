@@ -138,4 +138,4 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | D-1 | Set up the build-record trail and walkthrough skeleton | [D-1](stories/D-1.md) | Done |
 | C-4 | Build the source CSV generator (Ch1) | [C-4](stories/C-4.md) | Done |
 | C-5 | Build the dbt staging models that fix the mess (Ch2) | [C-5](stories/C-5.md) | Done |
-| C-6 | Build the core customer layers | [C-6](stories/C-6.md) | In review |
+| C-6 | Build the core customer layers | [C-6](stories/C-6.md) | Done |
