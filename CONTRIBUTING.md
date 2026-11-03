@@ -14,8 +14,8 @@ uv run dbt parse --project-dir dbt --profiles-dir dbt
 uv run build            # dbt build into data/retail_analytics.duckdb
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same lint, tests, and `dbt parse` on every push to
-`main` and every pull request. A change merges only with a green run.
+CI (`.github/workflows/ci.yml`) runs the same lint, tests, `dbt parse`, and data catalog check
+(`uv run catalog --check`) on every push to `main` and every pull request. A change merges only with a green run.
 
 ## Workflow
 
@@ -58,6 +58,7 @@ CI (`.github/workflows/ci.yml`) runs the same lint, tests, and `dbt parse` on ev
 
 - **Every model and every column is described in YAML** next to the model. Business terms
   (customer, visit, acquisition channel, milestone, step rate) are defined once in dbt doc
-  blocks and referenced, not re-worded.
+  blocks and referenced, not re-worded. After editing a description or doc block, run
+  `uv run catalog` and commit `CATALOG.md`; CI fails when it is stale.
 - Every model has tests for its grain (unique key, not null) plus the tests named in the data
   contract.

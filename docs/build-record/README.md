@@ -107,7 +107,7 @@ accepted or rejected and why. Recorded in each story's "Review outcome" section.
 C-1 (spec only) made no commit to this repo, so it has no CI run, and C-2 came before the PR flow (no PR);
 the details are in their records.
 
-- CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`)
+- CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`, data catalog check)
 - Python tests: [`tests/`](../../tests)
 - The full pipeline in CI (generate, build, test) lands with C-12.
 
@@ -120,7 +120,7 @@ progress is visible.
 
 - Landing page: [README](../../README.md)
 - Standards and review rules: [CONTRIBUTING.md](../../CONTRIBUTING.md)
-- Data catalog (`CATALOG.md`): lands with C-10.
+- Data catalog: [`CATALOG.md`](../../CATALOG.md), generated from the dbt descriptions by `uv run catalog` (C-10).
 - Live dashboard: lands with C-13.
 
 **Status:** Pending: D-2
@@ -139,6 +139,8 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | C-4 | Build the source CSV generator (Ch1) | [C-4](stories/C-4.md) | Done |
 | C-5 | Build the dbt staging models that fix the mess (Ch2) | [C-5](stories/C-5.md) | Done |
 | C-6 | Build the core customer layers | [C-6](stories/C-6.md) | Done |
-| C-7 | Build the sign-ups by channel mart (Ch3) | [C-7](stories/C-7.md) | In review |
-| C-8 | Build the visit funnel mart (Ch3) | [C-8](stories/C-8.md) | In review |
-| C-9 | Build the customer cohorts mart (Ch3) | [C-9](stories/C-9.md) | In review |
+| C-7 | Build the sign-ups by channel mart (Ch3) | [C-7](stories/C-7.md) | Done |
+| C-8 | Build the visit funnel mart (Ch3) | [C-8](stories/C-8.md) | Done |
+| C-9 | Build the customer cohorts mart (Ch3) | [C-9](stories/C-9.md) | Done |
+| C-10 | Generate the data catalog and gate it in CI | [C-10](stories/C-10.md) | In review |
+| C-11 | Draft the README landing page | [C-11](stories/C-11.md) | In review |
