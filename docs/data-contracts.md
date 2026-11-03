@@ -47,7 +47,7 @@ Each item is injected by the generator, fixed in dbt staging, and covered by at 
 |---|---|---|
 | M1 | Channel labels spelled many ways (`fb`, `Facebook Ads`, `facebook`, `Paid Social`) | marketing_touches.channel, utm_source, ad_spend.channel |
 | M2 | Duplicate customers: same email differing by case or whitespace | customers |
-| M3 | Mixed date formats and time zones (ISO 8601, `MM/DD/YYYY`, with and without offset) | all timestamp fields |
+| M3 | Mixed date formats and time zones (ISO 8601, `MM/DD/YYYY`, with and without offset); values without an offset are UTC | all timestamp fields |
 | M4 | Broken record links: orders pointing at missing customers; touches whose email matches no customer | orders.customer_id, marketing_touches.customer_email |
 | M5 | Order status spelled inconsistently (`paid`, `PAID`, `Paid `, `complete`) and refunds mixed in | orders.status |
 | M6 | Test and junk records (`@example.com`, name `test`, zero-total orders) | customers, orders |

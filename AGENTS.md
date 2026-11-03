@@ -12,6 +12,7 @@ uv sync && uv run ruff check . && uv run pytest
 uv run dbt parse --project-dir dbt --profiles-dir dbt
 ```
 
+`uv run generate [--seed N]` writes the synthetic source CSVs to `data/raw/` (seed 42 by default).
 `uv run build` runs `dbt build` with the repo-local profile into `data/retail_analytics.duckdb`.
 
 Shapes are fixed by `docs/data-contracts.md` (a copy of the spec; change the spec, not this file).
