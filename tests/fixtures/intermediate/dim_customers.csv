@@ -1,0 +1,17 @@
+customer_id,signup_date,signup_location,acquisition_channel
+1,2024-01-10,online,Paid Social
+2,2024-03-31,online,Paid Social
+3,2024-02-05,online,Email
+4,2024-03-01,online,Referral
+5,2024-04-01,online,Paid Social
+6,2024-04-10,online,Organic Search
+7,2024-05-02,online,Organic Search
+8,2024-06-30,online,Organic Search
+9,2024-04-20,online,Email
+10,2024-06-01,store,Email
+11,2024-10-01,online,Paid Search
+12,2024-11-11,online,Paid Search
+13,2024-12-31,online,Paid Search
+14,2024-11-02,store,In-store
+15,2024-10-15,online,Direct/Unknown
+16,2024-12-20,online,Direct/Unknown

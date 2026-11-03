@@ -1,7 +1,8 @@
-"""Checks for the C-6 core customer layers (`int_customer_visits`, `dim_customers`): built on hand-made
-staging-shaped fixtures (`tests/fixtures/staging/`) loaded into a `staging` schema, each case of the
-story's I/O matrix gives the expected rows, a broken fixture fails its dbt test, the milestone variable
-changes only the map keys, every column is described, and on seed 42 every dbt test passes."""
+"""Checks for the core layers (`int_customer_visits` and `dim_customers` from C-6, `int_channel_spend_daily`
+from C-7): built on hand-made staging-shaped fixtures (`tests/fixtures/staging/`) loaded into a `staging`
+schema, each case of the stories' I/O matrices gives the expected rows, a broken fixture fails its dbt
+test, the milestone variable changes only the map keys, every column is described, and on seed 42 every
+dbt test passes."""
 
 from __future__ import annotations
 
@@ -21,7 +22,7 @@ from retail_analytics.config import DBT_DIR
 from retail_analytics.generator import generate
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "staging"
-INTERMEDIATE_MODELS = ("int_customer_visits", "dim_customers")
+INTERMEDIATE_MODELS = ("int_customer_visits", "dim_customers", "int_channel_spend_daily")
 # Column types of the staging models the intermediate layer reads, in model column order.
 STAGING_TYPES = {
     "stg_customers": {
@@ -56,6 +57,12 @@ STAGING_TYPES = {
         "utm_medium": "varchar",
         "utm_campaign": "varchar",
     },
+    "stg_ad_spend": {
+        "date": "date",
+        "channel": "varchar",
+        "campaign": "varchar",
+        "spend": "decimal(12, 2)",
+    },
 }
 
 
@@ -74,7 +81,8 @@ def core_build(staging_dir: Path, work: Path, extra_vars: dict | None = None) ->
             f"create table staging.channels as select * from read_csv("
             f"'{DBT_DIR / 'seeds' / 'channels.csv'}', header = true, columns = {{'channel': 'varchar'}})"
         )
-    return dbt_build(RAW_FIXTURES, work, select=("intermediate",), extra_vars=extra_vars)
+    # The mart's tests also read intermediate models; the mart itself is not built here.
+    return dbt_build(RAW_FIXTURES, work, select=("intermediate",), extra_vars=extra_vars, exclude=("marts",))
 
 
 @pytest.fixture(scope="module")
@@ -162,6 +170,42 @@ def test_milestone_var_override_changes_only_map_keys(tmp_path: Path) -> None:
     ]
 
 
+def test_channel_spend_daily(fixture_build: Path) -> None:
+    """Campaigns summed into one row per channel and day (Paid Search on 1 January: 120.00 + 30.50)."""
+    assert rows(
+        fixture_build, "select * from intermediate.int_channel_spend_daily order by spend_date, channel"
+    ) == [
+        ("Paid Search", date(2024, 1, 1), Decimal("150.50")),
+        ("Paid Social", date(2024, 1, 1), Decimal("200.00")),
+        ("Paid Search", date(2024, 1, 2), Decimal("80.50")),
+    ]
+    [(kind,)] = rows(
+        fixture_build,
+        "select data_type from information_schema.columns where table_schema = 'intermediate' "
+        "and table_name = 'int_channel_spend_daily' and column_name = 'ad_spend'",
+    )
+    assert kind == "DECIMAL(18,2)"
+
+
+def test_duplicate_spend_key_fails_its_test(tmp_path: Path) -> None:
+    """A second row for the same channel and day fails the spend model's grain test."""
+    result = core_build(FIXTURES, tmp_path)
+    assert result.success, failed(result)
+    with duckdb.connect(str(tmp_path / "warehouse.duckdb")) as con:
+        con.execute(
+            "insert into intermediate.int_channel_spend_daily "
+            "select * from intermediate.int_channel_spend_daily limit 1"
+        )
+    result = dbt_build(
+        RAW_FIXTURES, tmp_path, select=("int_channel_spend_daily",), command="test", exclude=("marts",)
+    )
+    assert not result.success
+    assert failed(result) >= {
+        "unique_combination_int_channel_spend_daily_channel__spend_date",
+        "assert_channel_spend_matches_staging",
+    }, failed(result)
+
+
 def test_every_intermediate_node_is_described(fixture_build: Path) -> None:
     """Every intermediate model and column has a description, the documented columns are exactly the built
     columns, and the shared terms come from doc blocks."""
@@ -191,6 +235,9 @@ def test_every_intermediate_node_is_described(fixture_build: Path) -> None:
     assert docs["acquisition_channel"] in dim["columns"]["acquisition_channel"]["description"]
     assert docs["channel"] in dim["columns"]["acquisition_channel"]["description"]
     assert docs["milestone"] in dim["columns"]["milestone_dates"]["description"]
+    spend = by_name["int_channel_spend_daily"]
+    assert docs["ad_spend"] in spend["description"]
+    assert docs["channel"] in spend["columns"]["channel"]["description"]
 
 
 def test_intermediate_tests_exist(fixture_build: Path) -> None:
@@ -211,6 +258,12 @@ def test_intermediate_tests_exist(fixture_build: Path) -> None:
         "assert_visit_days_non_negative",
         "assert_milestone_dates_ascending",
         "assert_visit_count_matches_orders",
+        "unique_combination_int_channel_spend_daily_channel__spend_date",
+        "not_null_int_channel_spend_daily_channel",
+        "not_null_int_channel_spend_daily_spend_date",
+        "not_null_int_channel_spend_daily_ad_spend",
+        "relationships_int_channel_spend_daily_channel__channel__ref_channels_",
+        "assert_channel_spend_matches_staging",
     ):
         assert name in tests, name
 

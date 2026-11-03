@@ -46,11 +46,17 @@ def env(name: str, value: str) -> Iterator[None]:
 
 
 def dbt_build(
-    raw_dir: Path, work: Path, select: tuple[str, ...] = (), extra_vars: dict | None = None
+    raw_dir: Path,
+    work: Path,
+    select: tuple[str, ...] = (),
+    extra_vars: dict | None = None,
+    command: str = "build",
+    exclude: tuple[str, ...] = (),
 ) -> dbtRunnerResult:
-    """`dbt build` on `raw_dir` into `work/warehouse.duckdb`: the whole project, or only `select`."""
+    """`dbt build` (or `command`, such as `test`) on `raw_dir` into `work/warehouse.duckdb`: the whole
+    project, or only `select`."""
     args = [
-        "build",
+        command,
         "--project-dir", str(DBT_DIR),
         "--profiles-dir", str(DBT_DIR),
         "--target-path", str(work / "target"),
@@ -59,6 +65,8 @@ def dbt_build(
     ]  # fmt: skip
     if select:
         args += ["--select", *select]
+    if exclude:
+        args += ["--exclude", *exclude]
     with env("RETAIL_DUCKDB_PATH", str(work / "warehouse.duckdb")):
         return dbtRunner().invoke(args)
 
