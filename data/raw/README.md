@@ -7,6 +7,7 @@ Contents are gitignored; regenerate them rather than committing them. File shape
 ```bash
 uv run generate            # seed 42 (default); writes the six CSVs here, overwriting them
 uv run generate --seed 7   # another seed: different, internally consistent files
+uv run build               # also rewrites these files (seed 42, or --seed N) before it builds
 ```
 
 The same seed gives byte-identical files on the pinned Python (3.12, `.python-version`). The data covers 2024-01-01 to 2025-12-31 (8 quarters,

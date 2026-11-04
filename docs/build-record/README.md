@@ -107,9 +107,11 @@ accepted or rejected and why. Recorded in each story's "Review outcome" section.
 C-1 (spec only) made no commit to this repo, so it has no CI run, and C-2 came before the PR flow (no PR);
 the details are in their records.
 
-- CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`, data catalog check)
+- CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`,
+  data catalog check, then the full pipeline: `uv run generate`, then `uv run build`, which writes the CSVs
+  to `data/raw/` and runs `dbt build` on every layer with its tests; C-12)
 - Python tests: [`tests/`](../../tests)
-- The full pipeline in CI (generate, build, test) lands with C-12.
+- dbt tests: in the model YAML and [`dbt/tests/`](../../dbt/tests), run by `uv run build`
 
 **Status:** In progress
 
@@ -142,5 +144,6 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | C-7 | Build the sign-ups by channel mart (Ch3) | [C-7](stories/C-7.md) | Done |
 | C-8 | Build the visit funnel mart (Ch3) | [C-8](stories/C-8.md) | Done |
 | C-9 | Build the customer cohorts mart (Ch3) | [C-9](stories/C-9.md) | Done |
-| C-10 | Generate the data catalog and gate it in CI | [C-10](stories/C-10.md) | In review |
-| C-11 | Draft the README landing page | [C-11](stories/C-11.md) | In review |
+| C-10 | Generate the data catalog and gate it in CI | [C-10](stories/C-10.md) | Done |
+| C-11 | Draft the README landing page | [C-11](stories/C-11.md) | Done |
+| C-12 | Run the full pipeline in CI | [C-12](stories/C-12.md) | In review |

@@ -39,3 +39,11 @@ jobs:
       # of date. YAML columns matching built columns is enforced by the layer tests run above.
       - name: Data catalog check
         run: uv run catalog --check
+
+      # Runs the `generate` console script itself, so a broken entry point fails here.
+      - name: Generate source CSVs
+        run: uv run generate
+
+      # The one-command run with no --vars: regenerates data/raw/, then dbt builds and tests every layer.
+      - name: Build the full pipeline
+        run: uv run build
