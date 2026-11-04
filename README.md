@@ -85,23 +85,51 @@ from the dbt descriptions by `uv run catalog`.
 
 | Path | Contents |
 |---|---|
+| `src/retail_analytics/cli.py` | The one-command run (`uv run build`): generate, then `dbt build` |
 | `src/retail_analytics/generator/` | Synthetic source-data generator (`uv run generate`) |
+| `src/retail_analytics/catalog.py` | Data catalog generator and check (`uv run catalog`) |
 | `dbt/` | dbt-duckdb project: `models/staging`, `models/intermediate`, `models/marts`, `seeds`, `macros` |
 | `scripts/` | Helper scripts |
 | `tests/` | Python tests |
 | `docs/` | [Data contracts](docs/data-contracts.md), [build record](docs/build-record/README.md) |
 | `CATALOG.md` | Generated data catalog (`uv run catalog`) |
 | `data/raw/`, `data/export/` | Generated CSVs (not committed) |
+| `data/retail_analytics.duckdb` | DuckDB database built by `uv run build` (not committed) |
 
 ## Quick start
 
+Prerequisites: [git](https://git-scm.com/) and [uv](https://docs.astral.sh/uv/). On the first `uv run`, uv
+installs Python 3.12 (if it is missing) and the locked dependencies.
+
 ```bash
-uv sync
-uv run generate
+git clone https://github.com/howdoidata/retail_analytics.git
+cd retail_analytics
 uv run build
-uv run catalog
-uv run ruff check . && uv run pytest
 ```
+
+`uv run build` is the one-command run:
+
+1. It writes the six synthetic source CSVs to `data/raw/` (seed 42, or `--seed N`), replacing any already there.
+2. It runs `dbt build` on every layer (staging, intermediate, marts) with its tests, into
+   `data/retail_analytics.duckdb`, and exits non-zero if any model or test fails.
+
+The three views are the mart tables `fct_signups_by_channel`, `fct_visit_funnel_by_channel`, and
+`fct_customer_cohorts` in that file (schema `main`; the other layers are in the `staging` and `intermediate`
+schemas). `uv run generate [--seed N]` writes only the CSVs;
+`uv run dbt build --project-dir dbt --profiles-dir dbt` builds the CSVs already in `data/raw/` without
+regenerating them.
+
+Developer checks:
+
+```bash
+uv run ruff check .                                     # lint
+uv run pytest                                           # Python tests
+uv run dbt parse --project-dir dbt --profiles-dir dbt   # compile the dbt project
+uv run catalog --check                                  # CATALOG.md complete and current (uv run catalog rewrites it)
+```
+
+CI runs these checks, then `uv run generate` and `uv run build`, on every push to `main` and every pull
+request.
 
 Standards and review rules: [CONTRIBUTING.md](CONTRIBUTING.md).
 
