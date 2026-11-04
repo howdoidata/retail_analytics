@@ -250,3 +250,7 @@ def main(argv: list[str] | None = None) -> None:
         path = output_dir / f"{mart}.csv"
         path.write_bytes(content)
         print(f"wrote {_shown(path)} ({count} rows)")
+
+
+if __name__ == "__main__":  # `python -m retail_analytics.export`, how `uv run build` calls it
+    main()

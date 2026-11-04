@@ -2,7 +2,8 @@
 mart types cannot hold); a DuckDB file built here with the marts' column types exports byte for byte to
 `tests/fixtures/export/`, the same on a rerun; a missing database, mart, or column exits 1 naming it and
 writes nothing; each mart's columns, unique key, and rounding are the ones in `docs/data-contracts.md`; and
-on seed 42 the export's headers, row counts, and cells match the marts."""
+on seed 42 the export's headers, row counts, and cells match the marts. C-13 part 2 adds the module entry
+`uv run build` calls in a child process."""
 
 from __future__ import annotations
 
@@ -10,6 +11,8 @@ import csv
 import importlib
 import re
 import shutil
+import subprocess
+import sys
 import tomllib
 from datetime import date, datetime
 from decimal import Decimal
@@ -218,6 +221,28 @@ def test_export_script_entry() -> None:
     pyproject = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     module, _, attribute = pyproject["project"]["scripts"]["export"].partition(":")
     assert getattr(importlib.import_module(module), attribute) is export.main
+
+
+def test_runnable_as_a_module(tmp_path: Path) -> None:
+    """`python -m retail_analytics.export` writes the same files: the way `uv run build` calls it, in its
+    own process, because dbt-duckdb holds the database read-write in the process that ran dbt."""
+    out = tmp_path / "export"
+    done = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "retail_analytics.export",
+            "--database",
+            str(fixture_db(tmp_path / "fixture.duckdb")),
+            "--output-dir",
+            str(out),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    assert {p.name: p.read_bytes() for p in sorted(out.iterdir())} == expected_files()
 
 
 def test_no_database(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:

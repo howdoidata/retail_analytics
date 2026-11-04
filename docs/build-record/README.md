@@ -109,7 +109,8 @@ the details are in their records.
 
 - CI workflow: [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) (lint, Python tests, `dbt parse`,
   data catalog check, then the full pipeline: `uv run generate`, then `uv run build`, which writes the CSVs
-  to `data/raw/` and runs `dbt build` on every layer with its tests; C-12)
+  to `data/raw/`, runs `dbt build` on every layer with its tests, and ends by exporting the marts to
+  `data/export/`, re-exported once more to show the bytes do not change; C-12, C-13)
 - Python tests: [`tests/`](../../tests)
 - dbt tests: in the model YAML and [`dbt/tests/`](../../dbt/tests), run by `uv run build`
 
@@ -123,8 +124,9 @@ progress is visible.
 - Landing page: [README](../../README.md)
 - Standards and review rules: [CONTRIBUTING.md](../../CONTRIBUTING.md)
 - Data catalog: [`CATALOG.md`](../../CATALOG.md), generated from the dbt descriptions by `uv run catalog` (C-10).
-- Dashboard data: `uv run export` writes the three marts to [`data/export/`](../../data/export) as the
-  CSV files the dashboard reads (C-13). Live dashboard: lands with C-13 once the workbook is published.
+- Dashboard data: the last step of `uv run build`, and `uv run export` on its own, writes the three marts to
+  [`data/export/`](../../data/export) as the CSV files the dashboard reads (C-13). Live dashboard: lands
+  with C-13 once the workbook is published.
 
 **Status:** Pending: D-2
 

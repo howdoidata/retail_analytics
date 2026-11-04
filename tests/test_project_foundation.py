@@ -2,7 +2,8 @@
 data contract are in place, and the dbt project points at a local DuckDB file.
 C-12 adds the one-command run: every console script loads, `uv run build` generates
 then runs dbt (stubbed here, so no extra dbt build), and dbt's default source folder
-is the generator's output folder."""
+is the generator's output folder. C-13 adds the export as that run's last step, only
+when dbt succeeded, and runs dbt and the export as child processes (stubbed here)."""
 
 import importlib
 import sys
@@ -11,7 +12,6 @@ from importlib.metadata import EntryPoint
 from pathlib import Path
 from types import SimpleNamespace
 
-import dbt.cli.main
 import pytest
 import yaml
 
@@ -83,7 +83,7 @@ SCRIPTS = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8
 
 
 def test_console_scripts_declared() -> None:
-    assert {"build", "catalog", "generate"} <= set(SCRIPTS)
+    assert {"build", "catalog", "export", "generate"} <= set(SCRIPTS)
 
 
 @pytest.mark.parametrize("name", sorted(SCRIPTS))
@@ -98,6 +98,7 @@ class FakePipeline:
     def __init__(self) -> None:
         self.calls: list[tuple] = []
         self.dbt_success = True
+        self.export_code = 0
         self.generator_error: Exception | None = None
 
     def generate(self, argv: list[str]) -> None:
@@ -105,31 +106,31 @@ class FakePipeline:
         if self.generator_error:
             raise self.generator_error
 
-    def runner(self) -> object:
-        pipeline = self
-
-        class Runner:
-            def invoke(self, args: list[str]) -> SimpleNamespace:
-                pipeline.calls.append(("dbt", args, Path.cwd()))
-                return SimpleNamespace(success=pipeline.dbt_success)
-
-        return Runner()
+    def run(self, command: list[str], cwd: Path | None = None, check: bool = False) -> SimpleNamespace:
+        if command == cli.dbt_command("build"):
+            self.calls.append(("dbt", command, cwd))
+            return SimpleNamespace(returncode=0 if self.dbt_success else 1)
+        self.calls.append(("export", command, cwd))
+        return SimpleNamespace(returncode=self.export_code)
 
 
 @pytest.fixture
 def pipeline(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> FakePipeline:
     fake = FakePipeline()
     monkeypatch.setattr(cli.generator_cli, "main", fake.generate)
-    monkeypatch.setattr(dbt.cli.main, "dbtRunner", fake.runner)
-    monkeypatch.chdir(tmp_path)  # build() moves to the repo root; monkeypatch restores the directory
+    monkeypatch.setattr(cli.subprocess, "run", fake.run)
+    monkeypatch.chdir(tmp_path)  # each step must still run from the repo root
     return fake
 
 
-def test_build_generates_then_runs_dbt_build_from_repo_root(pipeline: FakePipeline) -> None:
+def test_build_generates_then_runs_dbt_build_then_exports_from_repo_root(
+    pipeline: FakePipeline,
+) -> None:
     cli.build([])
     assert pipeline.calls == [
         ("generate", ["--seed", str(DEFAULT_SEED)]),
-        ("dbt", cli.dbt_args("build"), REPO_ROOT),
+        ("dbt", cli.dbt_command("build"), REPO_ROOT),
+        ("export", cli.export_command(), REPO_ROOT),
     ]
     assert DEFAULT_SEED == 42
 
@@ -138,7 +139,8 @@ def test_build_passes_seed_to_generator(pipeline: FakePipeline) -> None:
     cli.build(["--seed", "7"])
     assert [call[:2] for call in pipeline.calls] == [
         ("generate", ["--seed", "7"]),
-        ("dbt", cli.dbt_args("build")),
+        ("dbt", cli.dbt_command("build")),
+        ("export", cli.export_command()),
     ]
 
 
@@ -150,12 +152,27 @@ def test_build_console_script_reads_command_line(
     assert pipeline.calls[0] == ("generate", ["--seed", "7"])
 
 
-def test_build_exits_1_when_dbt_fails(pipeline: FakePipeline) -> None:
+def test_build_exits_1_when_dbt_fails_and_does_not_export(pipeline: FakePipeline) -> None:
     pipeline.dbt_success = False
     with pytest.raises(SystemExit) as exit_info:
         cli.build([])
     assert exit_info.value.code == 1
     assert [call[0] for call in pipeline.calls] == ["generate", "dbt"]
+
+
+def test_build_exits_with_the_export_code_when_the_export_fails(pipeline: FakePipeline) -> None:
+    pipeline.export_code = 1
+    with pytest.raises(SystemExit) as exit_info:
+        cli.build([])
+    assert exit_info.value.code == 1
+    assert [call[0] for call in pipeline.calls] == ["generate", "dbt", "export"]
+
+
+def test_build_runs_dbt_and_the_export_as_child_processes_of_this_interpreter() -> None:
+    # dbt-duckdb holds the database read-write until the process that ran dbt exits, and DuckDB refuses the
+    # export's read-only open while it does, so neither step runs in the build's own process.
+    assert cli.dbt_command("build") == [sys.executable, "-m", "dbt.cli.main", *cli.dbt_args("build")]
+    assert cli.export_command() == [sys.executable, "-m", "retail_analytics.export"]
 
 
 def test_build_skips_dbt_when_generator_raises(pipeline: FakePipeline) -> None:
