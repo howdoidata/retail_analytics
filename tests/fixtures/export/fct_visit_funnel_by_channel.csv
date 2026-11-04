@@ -1,0 +1,10 @@
+channel,cohort_month,milestone,previous_milestone,customers_reached,step_rate,avg_days_from_previous,ad_spend,is_simulated
+Email,2024-01-01,0,,3,,,0,true
+Email,2024-01-01,1,0,3,1,0,,true
+Paid Search,2024-01-01,0,,10,,,1234.5,true
+Paid Search,2024-01-01,1,0,8,0.8,2.5,,true
+Paid Search,2024-01-01,2,1,6,0.75,14.33,,true
+Paid Search,2024-01-01,3,2,4,0.666667,30,,true
+Paid Search,2024-01-01,5,3,1,0.25,61.25,,true
+Paid Search,2024-01-01,10,5,0,0,,,true
+Paid Search,2024-02-01,0,,0,,,0,true

@@ -1,0 +1,6 @@
+channel,cohort_quarter,quarters_since_signup,cohort_size,active_customers,active_rate,visits,visits_per_active_customer,revenue,average_order,is_simulated
+Email,2024-04-01,0,3,3,1,4,1.3333,1234567.89,308641.97,true
+Paid Social,2024-01-01,0,4,3,0.75,5,1.6667,312.4,62.48,true
+Paid Social,2024-01-01,1,4,1,0.25,1,1,100,100,true
+Paid Social,2024-01-01,2,4,0,0,0,,0,,true
+Paid Social,2024-04-01,0,2,2,1,2,1,80.1,40.05,true
