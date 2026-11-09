@@ -1,0 +1,7 @@
+channel,quarter,signups,signups_prior_quarter,signups_change,share_of_signups,ad_spend,cost_per_signup,is_simulated
+Email,2024-01-01,2,,,0.5,0,,true
+Email,2024-04-01,3,2,0.5,0.5,12.35,4.12,true
+Paid Social,2024-01-01,2,,,0.5,1234567.8,617283.9,true
+Paid Social,2024-04-01,1,2,-0.5,0.166667,50,50,true
+"Referral, partner sites",2024-01-01,0,,,0,0,,true
+"Referral, partner sites",2024-04-01,2,0,,0.333333,0,,true

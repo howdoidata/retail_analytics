@@ -44,6 +44,15 @@ jobs:
       - name: Generate source CSVs
         run: uv run generate
 
-      # The one-command run with no --vars: regenerates data/raw/, then dbt builds and tests every layer.
+      # The one-command run with no --vars: regenerates data/raw/, dbt builds and tests every layer, then
+      # writes the mart CSVs to data/export/ (the last step, added by C-13).
       - name: Build the full pipeline
         run: uv run build
+
+      # Runs the `export` console script itself, so a broken entry point fails here, and proves a second
+      # export of the same database is byte-identical.
+      - name: Export the marts again and check the bytes are identical
+        run: |
+          cp -R data/export "$RUNNER_TEMP/export-first"
+          uv run export
+          diff -r "$RUNNER_TEMP/export-first" data/export

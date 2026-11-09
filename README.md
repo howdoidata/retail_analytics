@@ -85,9 +85,10 @@ from the dbt descriptions by `uv run catalog`.
 
 | Path | Contents |
 |---|---|
-| `src/retail_analytics/cli.py` | The one-command run (`uv run build`): generate, then `dbt build` |
+| `src/retail_analytics/cli.py` | The one-command run (`uv run build`): generate, `dbt build`, then export |
 | `src/retail_analytics/generator/` | Synthetic source-data generator (`uv run generate`) |
 | `src/retail_analytics/catalog.py` | Data catalog generator and check (`uv run catalog`) |
+| `src/retail_analytics/export.py` | The marts as CSV for the dashboard (`uv run export`) |
 | `dbt/` | dbt-duckdb project: `models/staging`, `models/intermediate`, `models/marts`, `seeds`, `macros` |
 | `scripts/` | Helper scripts |
 | `tests/` | Python tests |
@@ -112,12 +113,14 @@ uv run build
 1. It writes the six synthetic source CSVs to `data/raw/` (seed 42, or `--seed N`), replacing any already there.
 2. It runs `dbt build` on every layer (staging, intermediate, marts) with its tests, into
    `data/retail_analytics.duckdb`, and exits non-zero if any model or test fails.
+3. It writes the three marts to `data/export/*.csv`, the files the dashboard reads.
 
 The three views are the mart tables `fct_signups_by_channel`, `fct_visit_funnel_by_channel`, and
 `fct_customer_cohorts` in that file (schema `main`; the other layers are in the `staging` and `intermediate`
-schemas). `uv run generate [--seed N]` writes only the CSVs;
+schemas), and the three CSVs carry the same rows. `uv run generate [--seed N]` writes only the CSVs;
 `uv run dbt build --project-dir dbt --profiles-dir dbt` builds the CSVs already in `data/raw/` without
-regenerating them.
+regenerating them; `uv run export` repeats only the last step, so the same database always gives
+byte-identical files.
 
 Developer checks:
 
@@ -128,8 +131,8 @@ uv run dbt parse --project-dir dbt --profiles-dir dbt   # compile the dbt projec
 uv run catalog --check                                  # CATALOG.md complete and current (uv run catalog rewrites it)
 ```
 
-CI runs these checks, then `uv run generate` and `uv run build`, on every push to `main` and every pull
-request.
+CI runs these checks, then `uv run generate` and `uv run build` (which ends in the export), on every push to
+`main` and every pull request.
 
 Standards and review rules: [CONTRIBUTING.md](CONTRIBUTING.md).
 

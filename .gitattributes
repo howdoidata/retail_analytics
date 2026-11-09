@@ -1,1 +1,2 @@
 CATALOG.md text eol=lf
+tests/fixtures/export/*.csv text eol=lf

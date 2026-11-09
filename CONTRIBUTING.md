@@ -12,13 +12,14 @@ uv run ruff check .     # lint
 uv run pytest           # Python tests
 uv run dbt parse --project-dir dbt --profiles-dir dbt
 uv run catalog --check  # data catalog complete and CATALOG.md current
-uv run build            # one-command run: CSVs to data/raw/ (seed 42; --seed N), then dbt build of
-                        # every layer with its tests into data/retail_analytics.duckdb
+uv run build            # one-command run: CSVs to data/raw/ (seed 42; --seed N), dbt build of every
+                        # layer with its tests into data/retail_analytics.duckdb, then the mart CSVs
+uv run export           # just that last step: the three marts to data/export/*.csv for the dashboard
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same lint, tests, `dbt parse`, and data catalog check
-(`uv run catalog --check`), then the full pipeline (`uv run generate`, then `uv run build`), on every push to
-`main` and every pull request. A change merges only with a green run.
+(`uv run catalog --check`), then the full pipeline (`uv run generate`, then `uv run build`, which ends in
+the export), on every push to `main` and every pull request. A change merges only with a green run.
 
 ## Workflow
 
