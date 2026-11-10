@@ -151,3 +151,4 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | C-11 | Draft the README landing page | [C-11](stories/C-11.md) | Done |
 | C-12 | Run the full pipeline in CI | [C-12](stories/C-12.md) | Done |
 | C-13 | Publish the dashboard on real mart data | [C-13](stories/C-13.md) | Done |
+| C-14 | Fill measured facts and links into the README (descoped to links) | [C-14](stories/C-14.md) | Done |

@@ -4,8 +4,7 @@ Flagship How Do I Data demo: which acquisition channels bring customers who keep
 synthetic data from a fictional outdoor gear shop. All data is synthetic and every result is simulated.
 **Status: In development.**
 
-> Bracketed placeholders (`[[NUMBER: …]]` for a figure or measured status, `[[LINK: …]]` for a page not yet live) are filled
-> in as the build lands.
+> Bracketed placeholders (`[[LINK: …]]`, for a page not yet live) are filled in when the page goes live.
 
 ## What this shows
 
@@ -20,7 +19,7 @@ synthetic data from a fictional outdoor gear shop. All data is synthetic and eve
   - In past work, automating campaign targeting increased the team's capacity to run campaigns.
 - **What this demo proves:** messy store and marketing data can become a tested, documented answer to an
   acquisition question, rebuilt from this public repo, with AI working under three controls: limits on what
-  data it sees, human review before results are used, and a record of what it did. Evidence: [measured facts](#measured-facts)
+  data it sees, human review before results are used, and a record of what it did. Evidence: the [CI runs](#ci)
   and the [build record](#build-record).
 
 ## The demo company and question
@@ -41,7 +40,7 @@ Answered by three views, one mart each (shapes in [`docs/data-contracts.md`](doc
 |---|---|---|---|
 | 1 | Data Sources & Tracking | A synthetic generator that writes the shop's store, marketing, and ad-spend CSVs with deliberate mess: duplicate customers, channel labels spelled many ways, mixed timestamp formats, orders pointing at missing records, test and junk rows | [`src/retail_analytics/generator/`](src/retail_analytics/generator/), mess reference in [`data/raw/README.md`](data/raw/README.md) |
 | 2 | Data Pipelines & Warehousing | dbt models on DuckDB that fix each mess item, tests that prove it stays fixed, and CI on every change | [`dbt/models/staging/`](dbt/models/staging/), [`dbt/models/intermediate/`](dbt/models/intermediate/), tests in [`dbt/tests/`](dbt/tests/) and [`tests/`](tests/), [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |
-| 3 | Analytics & Data Products | Three marts by channel (sign-ups, visit funnel, cohorts) and one dashboard, labeled simulated | [`dbt/models/marts/`](dbt/models/marts/); Tableau Public dashboard (simulated): [[LINK: Tableau Public dashboard URL]] |
+| 3 | Analytics & Data Products | Three marts by channel (sign-ups, visit funnel, cohorts) and one dashboard, labeled simulated | [`dbt/models/marts/`](dbt/models/marts/); [Tableau Public dashboard](https://public.tableau.com/shared/R7XPC635J?:display_count=n&:origin=viz_share_link) (simulated) |
 | 4 | Data Operations & AI Governance | The build record from idea to production, and a data catalog generated from the dbt descriptions | [`docs/build-record/README.md`](docs/build-record/README.md), [`CATALOG.md`](CATALOG.md) |
 
 ## Build record
@@ -60,14 +59,12 @@ Stages:
 6. [Verification](docs/build-record/README.md#verification)
 7. [Production](docs/build-record/README.md#production)
 
-## Measured facts
+## CI
 
-Measured on this repo, not simulated:
+[![CI](https://github.com/howdoidata/retail_analytics/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/howdoidata/retail_analytics/actions/workflows/ci.yml?query=branch%3Amain)
 
-- dbt models: [[NUMBER: dbt model count]]
-- dbt tests: [[NUMBER: dbt test count]]
-- Python tests: [[NUMBER: Python test count]]
-- CI status: [[NUMBER: CI status on main]]
+Every change runs lint, the Python tests, `dbt parse`, the data catalog check, and the full pipeline
+(`uv run generate`, then `uv run build` with every dbt test, then the export): [workflow](.github/workflows/ci.yml).
 
 ## Data catalog
 
@@ -76,7 +73,8 @@ from the dbt descriptions by `uv run catalog`.
 
 ## Links
 
-- Tableau Public dashboard (simulated): [[LINK: Tableau Public dashboard URL]]
+- Tableau Public dashboard (simulated): [Switchback Outfitters](https://public.tableau.com/shared/R7XPC635J?:display_count=n&:origin=viz_share_link)
+- Data catalog: [`CATALOG.md`](CATALOG.md)
 - Story page on howdoidata.com: [[LINK: howdoidata.com story page URL]]
 - Demos page: [[LINK: howdoidata.com Demos page URL]]
 - Repo: [github.com/howdoidata/retail_analytics](https://github.com/howdoidata/retail_analytics)
