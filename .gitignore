@@ -31,3 +31,6 @@ dbt/logs/
 dbt/.user.yml
 logs/
 target/
+
+# Local scratch space for long command output (see AGENTS.md)
+.scratch/
