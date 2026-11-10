@@ -149,5 +149,5 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | C-9 | Build the customer cohorts mart (Ch3) | [C-9](stories/C-9.md) | Done |
 | C-10 | Generate the data catalog and gate it in CI | [C-10](stories/C-10.md) | Done |
 | C-11 | Draft the README landing page | [C-11](stories/C-11.md) | Done |
-| C-12 | Run the full pipeline in CI | [C-12](stories/C-12.md) | In review |
+| C-12 | Run the full pipeline in CI | [C-12](stories/C-12.md) | Done |
 | C-13 | Publish the dashboard on real mart data | [C-13](stories/C-13.md) | In progress |
