@@ -125,8 +125,8 @@ progress is visible.
 - Standards and review rules: [CONTRIBUTING.md](../../CONTRIBUTING.md)
 - Data catalog: [`CATALOG.md`](../../CATALOG.md), generated from the dbt descriptions by `uv run catalog` (C-10).
 - Dashboard data: the last step of `uv run build`, and `uv run export` on its own, writes the three marts to
-  [`data/export/`](../../data/export) as the CSV files the dashboard reads (C-13). Live dashboard: lands
-  with C-13 once the workbook is published.
+  [`data/export/`](../../data/export) as the CSV files the dashboard reads (C-13).
+- Live dashboard: [Switchback Outfitters on Tableau Public](https://public.tableau.com/shared/R7XPC635J?:display_count=n&:origin=viz_share_link), all data simulated (C-3, C-13).
 
 **Status:** Pending: D-2
 
@@ -150,4 +150,4 @@ or a [batch PR](convention.md#batch-pull-requests)).
 | C-10 | Generate the data catalog and gate it in CI | [C-10](stories/C-10.md) | Done |
 | C-11 | Draft the README landing page | [C-11](stories/C-11.md) | Done |
 | C-12 | Run the full pipeline in CI | [C-12](stories/C-12.md) | Done |
-| C-13 | Publish the dashboard on real mart data | [C-13](stories/C-13.md) | In progress |
+| C-13 | Publish the dashboard on real mart data | [C-13](stories/C-13.md) | Done |
